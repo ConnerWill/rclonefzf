@@ -25,7 +25,7 @@ fi
 # CONFIGURATION
 #######################################
 readonly BRANCH="main"
-readonly ASSET="${REPO_ROOT}/bin/yayfzf"
+readonly ASSET="${REPO_ROOT}/bin/rclonefzf"
 readonly VERBOSE=${VERBOSE:-true}
 
 if [[ -e "${SCRIPT_LIB}" ]]; then

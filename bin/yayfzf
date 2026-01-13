@@ -15,11 +15,11 @@ readonly VERSION="2.0.1"
 #######################################
 # Config locations (precedence order)
 #######################################
-readonly XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/yayfzf"
+readonly XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rclonefzf"
 readonly CONFIG_PATHS=(
-  "${XDG_CONFIG_DIR}/yayfzf.conf"
-  "${HOME}/.config/yayfzf/yayfzf.conf"
-  "${HOME}/.yayfzf.conf"
+  "${XDG_CONFIG_DIR}/rclonefzf.conf"
+  "${HOME}/.config/rclonefzf/rclonefzf.conf"
+  "${HOME}/.rclonefzf.conf"
 )
 
 #######################################
@@ -34,7 +34,7 @@ PROMPT="${SCRIPT_NAME}> "
 ENABLE_PREVIEW=true
 VERBOSE=false
 CTRL_C_CLOSE=true
-YAYFZF_PAGER="${PAGER:-less}"
+RCLONEFZF_PAGER="${PAGER:-less}"
 
 #######################################
 # Built-in themes
@@ -313,7 +313,7 @@ show_help_full() {
 
 example_config() {
   cat <<EOF
-# yayfzf configuration file (example)
+# rclonefzf configuration file (example)
 # Override defaults here
 
 # Theme: default, light, tokyo-night, neon
@@ -341,9 +341,9 @@ ENABLE_PREVIEW=true
 VERBOSE=false
 
 # Pager (less, bat, etc.)
-YAYFZF_PAGER="${PAGER:-less}"
+RCLONEFZF_PAGER="${PAGER:-less}"
 
-# Close yayfzf with 'ctrl-c' keypress
+# Close rclonefzf with 'ctrl-c' keypress
 CTRL_C_CLOSE=true
 
 #vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
@@ -352,7 +352,7 @@ EOF
 
 
 install_example_config() {
-  local cfg_file="${XDG_CONFIG_DIR}/yayfzf.conf"
+  local cfg_file="${XDG_CONFIG_DIR}/rclonefzf.conf"
 
   mkdir -p "$(dirname "${cfg_file}")"
   if [[ -f "${cfg_file}" ]]; then
@@ -515,8 +515,8 @@ main() {
       "Remove packages")  remove_packages                                 ;;
       "Update system")    update_system                                   ;;
       "Install config")   install_example_config;                  exit 0 ;;
-      "Show config")      show_example_config | "${YAYFZF_PAGER}"; exit 0 ;;
-      "Help")             show_help_full | "${YAYFZF_PAGER}";      exit 0 ;;
+      "Show config")      show_example_config | "${RCLONEFZF_PAGER}"; exit 0 ;;
+      "Help")             show_help_full | "${RCLONEFZF_PAGER}";      exit 0 ;;
       "Exit"|"" )         exit 0                                          ;;
     esac
   done

@@ -1,17 +1,17 @@
-pkgbase = yayfzf-git
-	pkgdesc = Development (git) version of yayfzf, fzf-based interface for searching, installing, removing, and managing packages using yay
+pkgbase = rclonefzf-git
+	pkgdesc = Development (git) version of rclonefzf, fzf-based interface for searching, installing, removing, and managing packages using yay
 	pkgver = 2.0.1.r0.g0000000
 	pkgrel = 1
-	url = https://github.com/ConnerWill/yayfzf
+	url = https://github.com/ConnerWill/rclonefzf
 	arch = any
 	license = GPL-3.0-or-later
 	makedepends = git
 	depends = bash
 	depends = fzf
 	depends = yay
-	provides = yayfzf
-	conflicts = yayfzf
-	source = git+https://github.com/ConnerWill/yayfzf.git
+	provides = rclonefzf
+	conflicts = rclonefzf
+	source = git+https://github.com/ConnerWill/rclonefzf.git
 	sha256sums = SKIP
 
-pkgname = yayfzf-git
+pkgname = rclonefzf-git

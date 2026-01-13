@@ -1,6 +1,6 @@
-#compdef yayfzf
+#compdef rclonefzf
 
-_yayfzf() {
+_rclonefzf() {
   local -a opts main_actions
 
   main_actions=(
@@ -27,4 +27,4 @@ _yayfzf() {
     '*: :( )'   # explicitly say no more arguments after options
 }
 
-_yayfzf "${@}"
+_rclonefzf "${@}"

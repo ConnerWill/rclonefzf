@@ -12,5 +12,5 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Shellcheck yayfzf
-        run: shellcheck --color=always --check-sourced bin/yayfzf
+      - name: Shellcheck rclonefzf
+        run: shellcheck --color=always --check-sourced bin/rclonefzf

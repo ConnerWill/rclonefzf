@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# yayfzf - bash completion
+# rclonefzf - bash completion
 
-_yayfzf_complete() {
+_rclonefzf_complete() {
     local cur prev words cword
     _init_completion || return
 
@@ -38,4 +38,4 @@ _yayfzf_complete() {
     return 0
 }
 
-complete -F _yayfzf_complete yayfzf
+complete -F _rclonefzf_complete rclonefzf

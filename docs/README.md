@@ -82,44 +82,44 @@ See the [wiki][wiki-installation-url] for more information
 
 # Usage
 
-If you added the script to your PATH as mentioned [above](#installation), you can run the command `yayfzf`
+If you added the script to your PATH as mentioned [above](#installation), you can run the command `rclonefzf`
 
-`yayfzf` can be either be executed directly or can be sourced to be invoked later
+`rclonefzf` can be either be executed directly or can be sourced to be invoked later
 
 > Running directly
 ```console
-./yayfzf
+./rclonefzf
 ```
 
 > Running if added to *$PATH*
 ```console
-yayfzf
+rclonefzf
 ```
 
 > Sourcing and invoking later
 ```shell
-source yayfzf
+source rclonefzf
 
-yayfzf
+rclonefzf
 ```
 
-Running `yayfzf` without any arguments or queries will list *all availiable packages* to be interactively searched using [fzf][fzf-url]
+Running `rclonefzf` without any arguments or queries will list *all availiable packages* to be interactively searched using [fzf][fzf-url]
 
 > *Example of running the script with no search query*
 
 ```shell
-yayfzf
+rclonefzf
 ```
 
 > *Example of running the script with input searching for "fzf"*
 
 ```shell
-yayfzf fzf
+rclonefzf fzf
 ```
 
 ## Hotkeys
 
-There are specific hotkeys that allow you to interact with [yayfzf][github-repo]
+There are specific hotkeys that allow you to interact with [rclonefzf][github-repo]
 Allowing you to install/remove packages, nagivate and view other packages, and change the fzf window formatting.
 
 <details>
@@ -261,33 +261,33 @@ git push origin AmazingNewFeature
 <img width="100%" src="https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png">
 
 <!-- LINKS -->
-[github-repo]: https://github.com/ConnerWill/yayfzf
-[shellcheck-badge]: https://github.com/ConnerWill/yayfzf/actions/workflows/shellcheck.yml/badge.svg
-[shellcheck-workflow]: https://github.com/ConnerWill/yayfzf/actions/workflows/shellcheck.yml
-[github-top-language-badge]: https://img.shields.io/github/languages/top/ConnerWill/yayfzf
-[github-language-count-badge]: https://img.shields.io/github/languages/count/ConnerWill/yayfzf
-[github-last-commit-badge]: https://img.shields.io/github/last-commit/ConnerWill/yayfzf
-[github-commits]: https://github.com/ConnerWill/yayfzf/commits/main
-[github-issues-badge]: https://img.shields.io/github/issues-raw/ConnerWill/yayfzf
-[github-issues]: https://github.com/ConnerWill/yayfzf/issues
-[github-repo-size-badge]: https://img.shields.io/github/repo-size/ConnerWill/yayfzf
+[github-repo]: https://github.com/ConnerWill/rclonefzf
+[shellcheck-badge]: https://github.com/ConnerWill/rclonefzf/actions/workflows/shellcheck.yml/badge.svg
+[shellcheck-workflow]: https://github.com/ConnerWill/rclonefzf/actions/workflows/shellcheck.yml
+[github-top-language-badge]: https://img.shields.io/github/languages/top/ConnerWill/rclonefzf
+[github-language-count-badge]: https://img.shields.io/github/languages/count/ConnerWill/rclonefzf
+[github-last-commit-badge]: https://img.shields.io/github/last-commit/ConnerWill/rclonefzf
+[github-commits]: https://github.com/ConnerWill/rclonefzf/commits/main
+[github-issues-badge]: https://img.shields.io/github/issues-raw/ConnerWill/rclonefzf
+[github-issues]: https://github.com/ConnerWill/rclonefzf/issues
+[github-repo-size-badge]: https://img.shields.io/github/repo-size/ConnerWill/rclonefzf
 [gitlab-badge]: https://img.shields.io/static/v1?label=gitlab&logo=gitlab&color=E24329&message=mirrored
-[gitlab]: https://gitlab.com/ConnerWill/yayfzf
-[license-badge]: https://img.shields.io/github/license/ConnerWill/yayfzf
-[license]: https://github.com/ConnerWill/yayfzf/blob/main/docs/LICENSE
-[github-repo-stars-badge]: https://img.shields.io/github/stars/ConnerWill/yayfzf?style=social
-[github-repo-downloads-badge]: https://img.shields.io/github/downloads/ConnerWill/yayfzf/total?style=social
-[github-release-badge]: https://img.shields.io/github/v/release/ConnerWill/yayfzf
-[github-release-url]: https://github.com/ConnerWill/yayfzf/releases
-[aur-version-badge]: https://img.shields.io/aur/version/yayfzf
-[aur-url]: https://aur.archlinux.org/packages/yayfzf
+[gitlab]: https://gitlab.com/ConnerWill/rclonefzf
+[license-badge]: https://img.shields.io/github/license/ConnerWill/rclonefzf
+[license]: https://github.com/ConnerWill/rclonefzf/blob/main/docs/LICENSE
+[github-repo-stars-badge]: https://img.shields.io/github/stars/ConnerWill/rclonefzf?style=social
+[github-repo-downloads-badge]: https://img.shields.io/github/downloads/ConnerWill/rclonefzf/total?style=social
+[github-release-badge]: https://img.shields.io/github/v/release/ConnerWill/rclonefzf
+[github-release-url]: https://github.com/ConnerWill/rclonefzf/releases
+[aur-version-badge]: https://img.shields.io/aur/version/rclonefzf
+[aur-url]: https://aur.archlinux.org/packages/rclonefzf
 
 [rainbow-line]: https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png
-[wiki-url]: https://github.com/ConnerWill/yayfzf/wiki
-[wiki-customization-url]: https://github.com/ConnerWill/yayfzf/wiki/Customization
-[wiki-installation-url]: https://github.com/ConnerWill/yayfzf/wiki/Installation
-[wiki-screenshots-url]: https://github.com/ConnerWill/yayfzf/wiki/Screenshots
+[wiki-url]: https://github.com/ConnerWill/rclonefzf/wiki
+[wiki-customization-url]: https://github.com/ConnerWill/rclonefzf/wiki/Customization
+[wiki-installation-url]: https://github.com/ConnerWill/rclonefzf/wiki/Installation
+[wiki-screenshots-url]: https://github.com/ConnerWill/rclonefzf/wiki/Screenshots
 
 [fzf-url]: httaps://github.com/junegunn/fzf
 [yay-url]: https://github.com/Jguer/yay
-[yayfzf-source]: https://github.com/ConnerWill/yayfzf/blob/main/bin/yayfzf
+[rclonefzf-source]: https://github.com/ConnerWill/rclonefzf/blob/main/bin/rclonefzf

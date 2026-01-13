@@ -1,12 +1,12 @@
-.\" Manpage for yayfzf
-.TH yayfzf 1 "2026-01-06" "2.0.1" "yayfzf manual"
+.\" Manpage for rclonefzf
+.TH rclonefzf 1 "2026-01-06" "2.0.1" "rclonefzf manual"
 
 .SH NAME
-yayfzf \- interactively search, install, and remove AUR packages using fzf
+rclonefzf \- interactively search, install, and remove AUR packages using fzf
 
 
 .SH SYNOPSIS
-.B yayfzf [\fIOPTIONS\fR] [\fISEARCH QUERY\fR]
+.B rclonefzf [\fIOPTIONS\fR] [\fISEARCH QUERY\fR]
 
 
 .SH DESCRIPTION
@@ -24,23 +24,23 @@ Show the extended help menu
 
 .TP
 .B \-k, \-\-keybindings
-List keybindings for yayfzf
+List keybindings for rclonefzf
 
 .TP
 .B \-V, \-\-version
-Show version of yayfzf
+Show version of rclonefzf
 
 .SH EXAMPLES
 .TP
-.B $ yayfzf
-Run yayfzf with no search query
+.B $ rclonefzf
+Run rclonefzf with no search query
 
 .TP
-.B $ yayfzf fzf
-Search for 'fzf' with yayfzf
+.B $ rclonefzf fzf
+Search for 'fzf' with rclonefzf
 
 .TP
-.B $ yayfzf \-h
+.B $ rclonefzf \-h
 Show the help menu
 
 
@@ -123,39 +123,39 @@ Show keybindings
 
 .TP
 .B Ctrl\-c
-Exit yayfzf
+Exit rclonefzf
 
 .TP
 .B Ctrl\-q
-Exit yayfzf
+Exit rclonefzf
 
 .TP
 .B ESC
-Exit yayfzf
+Exit rclonefzf
 
 
 .SH ENVIRONMENT
 .TP
-.B YAYFZF_HISTORY
-Path to the yayfzf history file.
+.B RCLONEFZF_HISTORY
+Path to the rclonefzf history file.
 
 If the environment variable
-.B YAYFZF_HISTORY
+.B RCLONEFZF_HISTORY
 is defined, it will be used directly.
 
-Otherwise, yayfzf determines the history file path using the first
+Otherwise, rclonefzf determines the history file path using the first
 available value in the following order:
 .RS
 .IP \(bu 2
-.B $XDG_CACHE_HOME/yayfzf/yayfzf_history
+.B $XDG_CACHE_HOME/rclonefzf/rclonefzf_history
 .IP \(bu 2
-.B $HOME/.cache/yayfzf/yayfzf_history
+.B $HOME/.cache/rclonefzf/rclonefzf_history
 .IP \(bu 2
-.B ~/.cache/yayfzf/yayfzf_history
+.B ~/.cache/rclonefzf/rclonefzf_history
 
 .PP
 If
-.B YAYFZF_HISTORY
+.B RCLONEFZF_HISTORY
 is set to any of the following values, history will be disabled and
 no history file will be written:
 .IP \(bu 2
@@ -169,7 +169,7 @@ no history file will be written:
 .RE
 
 .TP
-.B YAYFZF_PREVIEW_WINDOW
+.B RCLONEFZF_PREVIEW_WINDOW
 Controls the layout and size of the fzf preview window.
 
 The value is passed directly to fzf’s
@@ -185,7 +185,7 @@ Default:
 .B NO_COLOR
 Disable all ANSI color output.
 
-When set, yayfzf disables:
+When set, rclonefzf disables:
 .RS
 .IP \(bu 2
 fzf color themes
@@ -202,7 +202,7 @@ convention used by many CLI tools.
 .B NO_FX
 Disable terminal effects.
 
-When set, yayfzf will not use terminal title save and restore
+When set, rclonefzf will not use terminal title save and restore
 sequences.
 
 
