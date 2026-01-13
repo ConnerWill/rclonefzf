@@ -1,0 +1,525 @@
+#!/usr/bin/env bash
+#vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
+#shellcheck disable=2016,2034,2154,2249,2310
+
+set -Eeuo pipefail
+IFS=$'\n\t'
+
+#######################################
+# Script metadata
+#######################################
+readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_DESCRIPTION="Fullscreen interactive AUR / repo package manager using yay + fzf"
+readonly VERSION="2.0.1"
+
+#######################################
+# Config locations (precedence order)
+#######################################
+readonly XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/yayfzf"
+readonly CONFIG_PATHS=(
+  "${XDG_CONFIG_DIR}/yayfzf.conf"
+  "${HOME}/.config/yayfzf/yayfzf.conf"
+  "${HOME}/.yayfzf.conf"
+)
+
+#######################################
+# Defaults (override via config)
+#######################################
+THEME="default"
+SORT_BY="popularity"
+PREVIEW_WINDOW="right:60%:wrap"
+LAYOUT="reverse"
+BORDER="rounded"
+PROMPT="${SCRIPT_NAME}> "
+ENABLE_PREVIEW=true
+VERBOSE=false
+CTRL_C_CLOSE=true
+YAYFZF_PAGER="${PAGER:-less}"
+
+#######################################
+# Built-in themes
+#######################################
+declare -A BUILTIN_THEMES
+
+BUILTIN_THEMES[default]="
+fg:#c0caf5
+bg:#1a1b26
+hl:#7aa2f7
+fg+:#c0caf5
+bg+:#24283b
+hl+:#7dcfff
+info:#7aa2f7
+prompt:#7dcfff
+pointer:#7dcfff
+marker:#9ece6a
+spinner:#9ece6a
+header:#9ece6a
+"
+
+BUILTIN_THEMES[light]="
+fg:#000000
+bg:#ffffff
+hl:#005faf
+fg+:#000000
+bg+:#eaeaea
+hl+:#005faf
+info:#5f5f5f
+prompt:#005faf
+pointer:#005faf
+marker:#008700
+spinner:#008700
+header:#008700
+"
+
+BUILTIN_THEMES[tokyo-night]="
+fg:#C0CAF5
+bg:#1A1B26
+hl:#FF9E64
+fg+:#c0caf5
+bg+:#24283b
+hl+:#e0af68
+info:#7aa2f7
+prompt:#bb9af7
+pointer:#e0af68
+marker:#9ece6a
+spinner:#7dcfff
+header:#9ece6a
+"
+
+BUILTIN_THEMES[neon]="
+fg:#E0D0FF
+bg:#1A1B26
+hl:#FF66FF
+fg+:#FFFFFF
+bg+:#24283b
+hl+:#FF99FF
+info:#00FFFF
+prompt:#D0A0FF
+pointer:#FF00FF
+marker:#00FFFF
+spinner:#00FFFF
+header:#FF99FF
+"
+
+#######################################
+# Text colors
+#######################################
+declare -Al text_color
+declare -Al text_fx
+
+text_color[Reset]='\x1B[0m'             ## Reset Colors/Styles
+text_color[reset]='\x1B[0m'             #
+text_color[Bold]='\x1B[1m'              ## Bold style
+text_color[bold]='\x1B[1m'              #
+text_color[Italic]='\x1B[3m'            ## Italic style
+text_color[italic]='\x1B[3m'            #
+text_color[Underline]='\x1B[4m'         ## Underline style
+text_color[underline]='\x1B[4m'         #
+text_color[Black]='\x1B[38;5;0m'        ## Foreground color
+text_color[Gray]='\x1B[38;5;245m'       #
+text_color[DarkGray]='\x1B[38;5;8m'     #
+text_color[White]='\x1B[38;5;15m'       #
+text_color[Red]='\x1B[38;5;196m'        #
+text_color[Green]='\x1B[38;5;46m'       #
+text_color[Yellow]='\x1B[38;5;190m'     #
+text_color[Blue]='\x1B[38;5;33m'        #
+text_color[Purple]='\x1B[38;5;93m'      #
+text_color[Magenta]='\x1B[38;5;201m'    #
+text_color[Cyan]='\x1B[38;5;87m'        #
+text_color[BG_Black]='\x1B[48;5;0m'     ## Background color
+text_color[BG_Gray]='\x1B[48;5;245m'    #
+text_color[BG_DarkGray]='\x1B[48;5;8m'  #
+text_color[BG_White]='\x1B[48;5;15m'    #
+text_color[BG_Red]='\x1B[48;5;196m'     #
+text_color[BG_Green]='\x1B[48;5;46m'    #
+text_color[BG_Yellow]='\x1B[48;5;190m'  #
+text_color[BG_Blue]='\x1B[48;5;33m'     #
+text_color[BG_Purple]='\x1B[48;5;93m'   #
+text_color[BG_Magenta]='\x1B[48;5;201m' #
+text_color[BG_Cyan]='\x1B[48;5;87m'     #
+text_fx[Save_Title]='\x1B[22;0t'        ## Save title
+text_fx[save_title]='\x1B[22;0t'        #
+text_fx[Restore_Title]='\x1B[23;0t'     ## Restore title
+text_fx[restore_title]='\x1B[23;0t'     #
+
+#######################################
+# Load config
+#######################################
+load_config() {
+  local cfg
+  verbose "Searching for config files ..."
+  for cfg in "${CONFIG_PATHS[@]}"; do
+    if [[ -f "${cfg}" ]]; then
+      verbose "Using config file: '${cfg}' ..."
+      # shellcheck disable=SC1090
+      source "${cfg}"
+      return
+    fi
+  done
+}
+
+#######################################
+# Theme resolution
+#######################################
+resolve_theme() {
+  verbose "Loading theme ..."
+  # User-defined colors override everything
+  if [[ -n "${FZF_COLORS:-}" ]]; then
+    return
+  fi
+
+  if [[ -n "${BUILTIN_THEMES[${THEME}]:-}" ]]; then
+    FZF_COLORS="${BUILTIN_THEMES[${THEME}]}"
+    return
+  fi
+
+  warn "Unknown theme: '${THEME}', reverting to 'default' theme"
+  FZF_COLORS="${BUILTIN_THEMES[default]}"
+}
+
+#######################################
+# Utilities
+#######################################
+die() {
+  local msg="${1:-Unknown error}"
+  printf '%b%s%b%s%b\n' "${text_color[BG_Red]}${text_color[White]}${text_color[Bold]}" "  ERROR  " "${text_color[reset]}${text_color[Red]}" " ${msg}" "${text_color[reset]}" >&2
+  exit 1
+}
+
+warn() {
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  printf '%b%s%b%s%b\n' "${text_color[BG_Yellow]}${text_color[Black]}${text_color[Bold]}" " WARNING " "${text_color[reset]}${text_color[Yellow]}" " ${msg}" "${text_color[reset]}" >&2
+}
+
+info() {
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  printf '%b%s%b%s%b\n' "${text_color[BG_Blue]}${text_color[White]}${text_color[Bold]}" "   INFO  " "${text_color[reset]}${text_color[Blue]}" " ${msg}" "${text_color[reset]}"
+}
+
+verbose() {
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
+    printf '%b%s%b%s%b\n' "${text_color[BG_Purple]}${text_color[White]}${text_color[Bold]}" " VERBOSE " "${text_color[reset]}${text_color[Purple]}" " ${msg}" "${text_color[reset]}"
+  fi
+}
+
+success() {
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  printf '%b%s%b%s%b\n' "${text_color[BG_Green]}${text_color[Black]}${text_color[Bold]}" " SUCCESS " "${text_color[reset]}${text_color[Green]}" " ${msg}" "${text_color[reset]}"
+}
+
+require_cmd() {
+  local input=${1}
+  verbose "Checking dependency: ${input} ..."
+  if command -v "${input}" >/dev/null 2>&1; then
+    verbose "Found '${input}' in PATH ..."
+  else
+    die "Could not find '${input}' in PATH. Make sure it is installed and is in your PATH"
+  fi
+}
+
+confirm() {
+  local prompt="${1:-Are you sure?}"
+  local response
+  printf '%b%s%b ' "${text_color[BG_Cyan]}${text_color[Black]}${text_color[Bold]}" " CONFIRM " "${text_color[reset]}"
+  printf "${text_color[Bold]}${text_color[Yellow]}%s ${text_color[reset]}${text_color[Bold]}${text_color[White]}[${text_color[Green]}y${text_color[White]}/${text_color[Red]}N${text_color[White]}]: ${text_color[reset]}" "${prompt}"
+  read -r response
+  [[ "${response}" =~ ^[Yy]$ ]]
+}
+
+#######################################
+# Help / version
+#######################################
+show_help() {
+  cat <<EOF
+NAME:
+
+  ${SCRIPT_NAME}
+
+
+DESCRIPTION:
+
+  ${SCRIPT_DESCRIPTION}
+
+
+USAGE:
+
+  ${SCRIPT_NAME} [options] [search query]
+
+
+OPTIONS:
+
+  -k, --keybindings  Show keybindings
+  --init-config      Install example configuration file
+  --show-config      Show example configuration file content
+  -h                 Show help
+  --help             Show full help
+  -V, --version      Show version
+
+
+EOF
+}
+
+# TODO: Add more keybindings
+#  ?                   Show keybindings
+#  Ctrl-h              Show help
+#  Ctrl-d              Deselect all
+#  Ctrl-i              Install selected
+#  Ctrl-r              Remove selected
+#  Ctrl-u              Update system
+#  Ctrl-v              Toggle preview
+#  Ctrl-/              Toggle layout
+#  Ctrl-l              Clear query
+show_keybindings() {
+  cat <<'EOF'
+KEYBINDINGS:
+
+  ENTER               Perform action on selection
+  TAB / Shift-TAB     Select / Unselect
+  Ctrl-c / ESC        Exit
+
+
+EOF
+}
+
+show_config_files() {
+  cat <<EOF
+CONFIG FILES (in order):
+
+$(printf '  %s\n' "${CONFIG_PATHS[@]}")
+
+
+EOF
+}
+
+show_version() {
+  printf '%s %s\n' "${SCRIPT_NAME}" "${VERSION}"
+}
+
+show_help_full() {
+  show_help
+  show_keybindings
+  show_config_files
+  show_version
+}
+
+#######################################
+# Example config
+#######################################
+
+example_config() {
+  cat <<EOF
+# yayfzf configuration file (example)
+# Override defaults here
+
+# Theme: default, light, tokyo-night, neon
+THEME="neon"
+
+# Package sort order: popularity, votes, last_updated
+SORT_BY="popularity"
+
+# Preview window options for fzf
+PREVIEW_WINDOW="right:60%:wrap"
+
+# Layout: default, reverse
+LAYOUT="reverse"
+
+# Border style: default, rounded
+BORDER="rounded"
+
+# Prompt for fzf
+PROMPT="${SCRIPT_NAME}> "
+
+# Enable preview window
+ENABLE_PREVIEW=true
+
+# Verbose output
+VERBOSE=false
+
+# Pager (less, bat, etc.)
+YAYFZF_PAGER="${PAGER:-less}"
+
+# Close yayfzf with 'ctrl-c' keypress
+CTRL_C_CLOSE=true
+
+#vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
+EOF
+}
+
+
+install_example_config() {
+  local cfg_file="${XDG_CONFIG_DIR}/yayfzf.conf"
+
+  mkdir -p "$(dirname "${cfg_file}")"
+  if [[ -f "${cfg_file}" ]]; then
+    warn "Configuration file already exists: '${cfg_file}', skipping creation."
+    return
+  fi
+
+  example_config > "${cfg_file}"
+  success "Created configuration file: '${cfg_file}'"
+}
+
+show_example_config() {
+  example_config
+  printf "\n\n# Configuration file locations:\n"
+  printf '#\t%s\n' "${CONFIG_PATHS[@]}"
+}
+
+#######################################
+# Command line argument parsing
+#######################################
+SEARCH_QUERY=""
+CONFIG_INIT=false
+
+while [[ $# -gt 0 ]]; do
+  case "${1}" in
+    -k|--keybindings) show_keybindings;    exit 0 ;;
+    --init-config)    CONFIG_INIT=true;    shift  ;;
+    --show-config)    show_example_config; exit 0 ;;
+    -h)               show_help;           exit 0 ;;
+    --help)           show_help_full;      exit 0 ;;
+    -V|--version)     show_version;        exit 0 ;;
+    *) SEARCH_QUERY="${1}"; shift ;;
+  esac
+done
+
+#######################################
+# Init
+#######################################
+load_config
+resolve_theme
+require_cmd "yay"
+require_cmd "fzf"
+
+if [[ "${CONFIG_INIT}" == true ]]; then
+  install_example_config
+  exit 0
+fi
+
+#######################################
+# Build fzf options (fullscreen only)
+#######################################
+FZF_OPTS=(
+  --ansi
+  --layout="${LAYOUT}"
+  --border="${BORDER}"
+  --prompt="${PROMPT}"
+  --color="$(printf '%s' "${FZF_COLORS}" | tr '\n' ',' | sed 's/,$//')"
+)
+
+if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
+  FZF_OPTS+=( --preview-window="${PREVIEW_WINDOW}" )
+fi
+
+readonly FZF_OPTS
+
+#######################################
+# Core actions
+#######################################
+search_packages() {
+  yay -Ss --sortby "${SORT_BY}" |
+    awk '/^[^[:space:]]/ { print $1 }' |
+    fzf "${FZF_OPTS[@]}" \
+      --query="${SEARCH_QUERY}" \
+      --multi \
+      --preview 'yay -Si {}'
+}
+
+install_packages() {
+  local pkgs pkgs_arr
+
+  pkgs="$(search_packages || true)"
+  [[ -z "${pkgs}" ]] && info "No packages selected for installation." && return
+
+  mapfile -t pkgs_arr <<< "${pkgs}"
+
+  info "Installing packages: ${pkgs_arr[*]} ..."
+  if yay -S --needed "${pkgs_arr[@]}"; then
+    success "Installation complete."
+  else
+    die "Installation failed for: ${pkgs_arr[*]}"
+  fi
+}
+
+remove_packages() {
+  local pkgs pkgs_arr
+
+  # Gather list of selected packages
+  pkgs="$(yay -Qq | fzf "${FZF_OPTS[@]}" --multi --preview 'yay -Qi {}' || true)"
+  [[ -z "${pkgs}" ]] && info "No packages selected for removal." && return
+
+  mapfile -t pkgs_arr <<< "${pkgs}"
+
+  # Confirm removal
+  if ! confirm "Remove packages: ${pkgs_arr[*]} ?"; then
+    info "Removal cancelled."
+    return
+  fi
+
+  # Remove packages
+  info "Removing packages: ${pkgs_arr[*]} ..."
+  if yay -Rns "${pkgs_arr[@]}"; then
+    success "Removal complete."
+  else
+    die "Removal failed for: ${pkgs_arr[*]}"
+  fi
+}
+
+update_system() {
+  if ! confirm "Update entire system?"; then
+    info "Update cancelled."
+    return
+  fi
+
+  info "Starting system update (syncing all packages) ..."
+  if yay -Syu; then
+    success "System update completed successfully."
+  else
+    die "System update failed. Check above output for errors."
+  fi
+}
+
+#######################################
+# Main menu
+#######################################
+main_menu() {
+  printf '%s\n'        \
+    "Install packages" \
+    "Remove packages"  \
+    "Update system"    \
+    "Install config"   \
+    "Show config"      \
+    "Help"             \
+    "Exit" |
+    fzf "${FZF_OPTS[@]}"
+}
+
+#######################################
+# Main loop
+#######################################
+main() {
+  while true; do
+    local choice
+    choice="$(main_menu || true)"
+    if [[ -n "${CTRL_C_CLOSE}" && "${CTRL_C_CLOSE}" != true ]]; then
+      [[ -z "${choice}" ]] && continue
+    fi
+
+    case "${choice}" in
+      "Install packages") install_packages                                ;;
+      "Remove packages")  remove_packages                                 ;;
+      "Update system")    update_system                                   ;;
+      "Install config")   install_example_config;                  exit 0 ;;
+      "Show config")      show_example_config | "${YAYFZF_PAGER}"; exit 0 ;;
+      "Help")             show_help_full | "${YAYFZF_PAGER}";      exit 0 ;;
+      "Exit"|"" )         exit 0                                          ;;
+    esac
+  done
+}
+
+main
