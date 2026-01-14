@@ -146,7 +146,7 @@ rclonefzf "query"
 | <kbd>TAB</kbd> | Select item |
 | <kbd>Shift</kbd>+<kbd>TAB</kbd> | Unselect item |
 | <kbd>CTRL</kbd>+<kbd>d</kbd> | Deselect all items |
-| <kbd>CTRL</kbd>+<kbd>l</kbd> / <kbd>CTRL</kbd>+<kbd>Backspace<kbd> | Clear search query |
+| <kbd>CTRL</kbd>+<kbd>l</kbd> / <kbd>CTRL</kbd>+<kbd>Backspace</kbd> | Clear search query |
 | <kbd>CTRL</kbd>+<kbd>/</kbd> | Change layout |
 | <kbd>CTRL</kbd>+<kbd>v</kbd> | Toggle preview window |
 | <kbd>?</kbd> | Show keybindings |
