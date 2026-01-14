@@ -313,7 +313,7 @@ example_config() {
 
   local cfg_file="${XDG_CONFIG_DIR}/rclonefzf.conf"
   if [[ -f "${cfg_file}" ]]; then
-    "${PAGER}" "${cfg_file}"
+    "${RCLONEFZF_PAGER}" "${cfg_file}"
   else
     cat <<EOF
 # rclonefzf configuration file (example)
@@ -348,10 +348,8 @@ RCLONE_MAX_DEPTH=10
 
 #vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 EOF
-
   fi
 }
-
 
 install_example_config() {
   local cfg_file="${XDG_CONFIG_DIR}/rclonefzf.conf"
