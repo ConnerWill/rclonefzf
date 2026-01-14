@@ -481,7 +481,7 @@ file_viewer() {
 
   #shellcheck disable=2145
   selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}'" || true)
-  [[ -z "${selection}" ]] && info "No files selected." && return
+  [[ -z "${selection}" ]] && verbose "No files selected." && return
 
   mapfile -t selection_arr <<< "${selection}"
   #shellcheck disable=2145
