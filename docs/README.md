@@ -46,7 +46,8 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
     - [AUR](#aur)
     - [Git](#git)
   - [Usage](#usage)
-  - [Options](#options)
+    - [Command Line Options](#command-line-options)
+    - [Keybindings](#keybindings)
   - [Configuration](#configuration)
     - [Configuration Files](#configuration-files)
     - [Configuration Options](#configuration-options)
@@ -128,7 +129,7 @@ Launch with an initial search query:
 rclonefzf "query"
 ```
 
-## Options
+### Command Line Options
 
 | Option | Description |
 |--------|-------------|
@@ -139,7 +140,7 @@ rclonefzf "query"
 | `--help` | Show full help |
 | `-V`, `--version` | Show version |
 
-
+### Keybindings
 
 | Key | Action |
 |-----|--------|
