@@ -62,7 +62,7 @@ EXAMPLES:
 
     Show this help
 
-        $ ${PROG} -h
+        $ ${PROG}
 
 
 EOF
@@ -72,19 +72,12 @@ EOF
 #######################################
 # MAIN
 #######################################
-while [[ $# -gt 0 ]]; do
-  case "${1}" in
-    -h|--help) usage ;;
-    -*)        usage ;;
-    *)         shift ;;
-  esac
-done
+if [[ "${#}" -ne 2 ]]; then
+  usage
+fi
 
 readonly CURRENT_VERSION="${1}"
 readonly NEW_VERSION="${2}"
-
-echo "Current: ${CURRENT_VERSION}"
-echo "New: ${NEW_VERSION}"
 
 is_installed "git"
 
