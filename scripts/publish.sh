@@ -83,10 +83,11 @@ readonly NEW_VERSION="${2}"
 is_installed "git"
 cd_directory "${REPO_ROOT}"
 checkout_branch "${BRANCH}"
-commit_files "[AUTOMATED] Increase version from ${CURRENT_VERSION} to ${NEW_VERSION}"
 
 info "Running: bump-version.sh"
 bash "${SCRIPT_DIR}/bump-version.sh" "${CURRENT_VERSION}" "${NEW_VERSION}"
+
+commit_files "[AUTOMATED] Increase version from ${CURRENT_VERSION} to ${NEW_VERSION}"
 
 info "Running: create-release.sh"
 bash "${SCRIPT_DIR}/create-release.sh" "${NEW_VERSION}"
