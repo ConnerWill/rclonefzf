@@ -35,7 +35,7 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
 # Table of Contents
 
 <!--toc:start-->
-- [**rclonefzf**](#rclonefzf)
+- [rclonefzf](#rclonefzf)
 - [Description](#description)
 - [Table of Contents](#table-of-contents)
 - [Screenshots](#screenshots)
@@ -48,7 +48,8 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
   - [Usage](#usage)
   - [Options](#options)
   - [Configuration](#configuration)
-    - [Common configuration options](#common-configuration-options)
+    - [Configuration Files](#configuration-files)
+    - [Configuration Options](#configuration-options)
   - [See Also](#see-also)
   - [Contributing](#contributing)
   - [Donate](#donate)
@@ -154,13 +155,15 @@ rclonefzf "query"
 
 ## Configuration
 
+### Configuration Files
+
 rclonefzf looks for configuration files in this order (uses the first file found):
 
 - `$XDG_CONFIG_HOME/rclonefzf/rclonefzf.conf`
 - `$HOME/.config/rclonefzf/rclonefzf.conf`
 - `$HOME/.rclonefzf.conf`
 
-### Common configuration options
+### Configuration Options
 
 - `THEME` — Color theme *(default, light, tokyo-night, neon)*
 - `PREVIEW_WINDOW` — fzf preview window layout and size
@@ -175,7 +178,6 @@ rclonefzf looks for configuration files in this order (uses the first file found
 
 - [rclone][rclone-url]
 - [fzf][fzf-url]
-
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -253,6 +255,6 @@ git push origin AmazingNewFeature
 [wiki-installation-url]: https://github.com/ConnerWill/rclonefzf/wiki/Installation
 [wiki-screenshots-url]: https://github.com/ConnerWill/rclonefzf/wiki/Screenshots
 
-[fzf-url]: httaps://github.com/junegunn/fzf
+[fzf-url]: https://github.com/junegunn/fzf
 [rclone-url]: https://rclone.org
 [rclonefzf-source]: https://github.com/ConnerWill/rclonefzf/blob/main/bin/rclonefzf
