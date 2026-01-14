@@ -1,6 +1,6 @@
 pkgbase = rclonefzf
-	pkgdesc = fzf-based interface for searching, installing, removing, and managing packages using yay
-	pkgver = 2.0.1
+	pkgdesc = Interactive terminal UI for browsing and viewing files on rclone remotes using fzf
+	pkgver = 1.0.0
 	pkgrel = 1
 	url = https://github.com/ConnerWill/rclonefzf
 	arch = any
@@ -8,7 +8,7 @@ pkgbase = rclonefzf
 	depends = bash
 	depends = fzf
 	depends = yay
-	source = rclonefzf-2.0.1.tar.gz::https://github.com/ConnerWill/rclonefzf/archive/refs/tags/v2.0.1.tar.gz
+	source = rclonefzf-1.0.0.tar.gz::https://github.com/ConnerWill/rclonefzf/archive/refs/tags/v1.0.0.tar.gz
 	sha256sums = SKIP
 
 pkgname = rclonefzf
