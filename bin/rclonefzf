@@ -317,9 +317,6 @@ example_config() {
 # Theme: default, light, tokyo-night, neon
 THEME="neon"
 
-# Package sort order: popularity, votes, last_updated
-SORT_BY="popularity"
-
 # Preview window options for fzf
 PREVIEW_WINDOW="right:60%:wrap"
 
