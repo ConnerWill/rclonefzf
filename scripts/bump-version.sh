@@ -72,13 +72,9 @@ EOF
 #######################################
 # MAIN
 #######################################
-while [[ $# -gt 0 ]]; do
-  case "${1}" in
-    -h|--help) usage ;;
-    -*)        usage ;;
-    *)         shift ;;
-  esac
-done
+if [[ "${#}" -ne 2 ]]; then
+  usage
+fi
 
 is_installed "git"
 
