@@ -91,8 +91,6 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
 ```bash
 yay -S rclonefzf
 ```
-```
-```
 
 ### Git
 
@@ -119,13 +117,13 @@ sudo install -Dm644 "completion/rclonefzf_completion.sh" "/usr/share/bash-comple
 
 Launch the interactive interface:
 
-```sh
+```bash
 rclonefzf
 ```
 
 Launch with an initial search query:
 
-```sh
+```bash
 rclonefzf "query"
 ```
 
