@@ -56,9 +56,9 @@ SYNOPSIS:
 
 EXAMPLES:
 
-    Update version '1.0.0' to version '1.0.1'
+    Update version '1.0.1' to version '1.0.1'
 
-        $ ${PROG} 1.0.0 1.0.1
+        $ ${PROG} 1.0.1 1.0.1
 
     Show this help
 
