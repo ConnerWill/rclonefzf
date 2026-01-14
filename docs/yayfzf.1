@@ -1,215 +1,201 @@
 .\" Manpage for rclonefzf
-.TH rclonefzf 1 "2026-01-06" "2.0.1" "rclonefzf manual"
+.TH RCLONEFZF 1 "2026-01-06" "1.0.0" "rclonefzf manual"
 
 .SH NAME
-rclonefzf \- interactively search, install, and remove AUR packages using fzf
-
+rclonefzf \- interactive terminal UI for browsing rclone remotes using fzf
 
 .SH SYNOPSIS
-.B rclonefzf [\fIOPTIONS\fR] [\fISEARCH QUERY\fR]
-
+.B rclonefzf
+[\fIOPTIONS\fR]
+[\fISEARCH QUERY\fR]
 
 .SH DESCRIPTION
-Search, install, and remove packages from the AUR interactively with fzf.
+.B rclonefzf
+is a terminal-based interactive browser for rclone remotes powered by
+.BR fzf (1).
+It allows users to select configured rclone remotes, recursively browse
+files, preview file contents using
+.BR rclone\ cat ,
+and manage selections using a keyboard-driven interface.
 
+Configuration is loaded from standard XDG locations, and behavior such as
+themes, layout, preview window, and keybindings can be customized.
 
 .SH OPTIONS
 .TP
+.B \-k, \-\-keybindings
+Show the list of available keybindings and exit.
+
+.TP
+.B \-\-init-config
+Install an example configuration file to the XDG config directory and exit.
+
+.TP
+.B \-\-show-config
+Print the example configuration file to stdout and exit.
+
+.TP
 .B \-h
-Show the help menu
+Show the short help text and exit.
 
 .TP
 .B \-\-help
-Show the extended help menu
-
-.TP
-.B \-k, \-\-keybindings
-List keybindings for rclonefzf
+Show full help, including keybindings and config file locations, and exit.
 
 .TP
 .B \-V, \-\-version
-Show version of rclonefzf
+Show the rclonefzf version and exit.
 
-.SH EXAMPLES
+.SH USAGE
 .TP
-.B $ rclonefzf
-Run rclonefzf with no search query
-
-.TP
-.B $ rclonefzf fzf
-Search for 'fzf' with rclonefzf
+.B rclonefzf
+Launch the interactive main menu and select a configured rclone remote.
 
 .TP
-.B $ rclonefzf \-h
-Show the help menu
-
+.B rclonefzf "query"
+Launch rclonefzf with an initial fzf search query.
 
 .SH KEYBINDINGS
 .TP
+.B ENTER
+Perform action on the current selection.
+
+.TP
 .B TAB
-Select item
+Select item.
 
 .TP
 .B Shift\-TAB
-Unselect item
+Unselect item.
 
 .TP
 .B Ctrl\-d
-Deselect all items
-
-.TP
-.B Ctrl\-i
-Install selected packages
-
-.TP
-.B Ctrl\-r
-Uninstall selected packages
-
-.TP
-.B Ctrl\-u
-Update all packages
-
-.TP
-.B Ctrl\-n
-Next history entry
-
-.TP
-.B Ctrl\-p
-Previous history entry
-
-.TP
-.B Ctrl\-/
-Change layout
-
-.TP
-.B Ctrl\-v
-Toggle preview window
-
-.TP
-.B HOME
-Jump to top
-
-.TP
-.B END
-Jump to bottom
-
-.TP
-.B PAGEUP
-Scroll one page up
-
-.TP
-.B PAGEDOWN
-Scroll one page down
+Deselect all selected items.
 
 .TP
 .B Ctrl\-l
-Clear search query
+Clear the current search query and screen.
 
 .TP
-.B Alt\-Backspace
-Clear search query
+.B Ctrl\-Backspace
+Clear the current search query.
 
 .TP
-.B Alt\-Left
-Delete previous word
+.B Ctrl\-/
+Cycle fzf layout and preview window position.
 
 .TP
-.B Ctrl\-h
-Show help
+.B Ctrl\-v
+Toggle the preview window.
 
 .TP
 .B ?
-Show keybindings
+Show keybindings.
 
 .TP
 .B Ctrl\-c
-Exit rclonefzf
-
-.TP
-.B Ctrl\-q
-Exit rclonefzf
+Exit rclonefzf.
 
 .TP
 .B ESC
-Exit rclonefzf
+Exit rclonefzf.
 
+.SH CONFIGURATION
+rclonefzf reads configuration files in the following order, using the
+first file found:
 
-.SH ENVIRONMENT
-.TP
-.B RCLONEFZF_HISTORY
-Path to the rclonefzf history file.
-
-If the environment variable
-.B RCLONEFZF_HISTORY
-is defined, it will be used directly.
-
-Otherwise, rclonefzf determines the history file path using the first
-available value in the following order:
 .RS
 .IP \(bu 2
-.B $XDG_CACHE_HOME/rclonefzf/rclonefzf_history
+.B $XDG_CONFIG_HOME/rclonefzf/rclonefzf.conf
 .IP \(bu 2
-.B $HOME/.cache/rclonefzf/rclonefzf_history
+.B $HOME/.config/rclonefzf/rclonefzf.conf
 .IP \(bu 2
-.B ~/.cache/rclonefzf/rclonefzf_history
-
-.PP
-If
-.B RCLONEFZF_HISTORY
-is set to any of the following values, history will be disabled and
-no history file will be written:
-.IP \(bu 2
-.B false
-.IP \(bu 2
-.B False
-.IP \(bu 2
-.B no
-.IP \(bu 2
-.B No
+.B $HOME/.rclonefzf.conf
 .RE
 
-.TP
-.B RCLONEFZF_PREVIEW_WINDOW
-Controls the layout and size of the fzf preview window.
+Configuration files are standard shell syntax and override default values.
 
-The value is passed directly to fzf’s
+.SH CONFIG OPTIONS
+Common configuration variables include:
+
+.TP
+.B THEME
+Set the fzf color theme.
+Built-in themes include:
+.BR default ,
+.BR light ,
+.BR tokyo-night ,
+and
+.BR neon .
+
+.TP
+.B PREVIEW_WINDOW
+Controls the fzf preview window layout and size.
+Passed directly to fzf’s
 .BR --preview-window
 option.
 
-Default:
-.RS
-.B bottom,43%,border-double
-.RE
+.TP
+.B ENABLE_PREVIEW
+Enable or disable the preview window.
+Valid values:
+.B true
+or
+.B false .
 
 .TP
-.B NO_COLOR
-Disable all ANSI color output.
-
-When set, rclonefzf disables:
-.RS
-.IP \(bu 2
-fzf color themes
-.IP \(bu 2
-ANSI color output in messages
-
-.PP
-This follows the
-.B NO_COLOR
-convention used by many CLI tools.
-.RE
+.B LAYOUT
+Set fzf layout.
+Valid values:
+.B default
+or
+.B reverse .
 
 .TP
-.B NO_FX
-Disable terminal effects.
+.B BORDER
+Set fzf border style.
+Valid values:
+.B default
+or
+.B rounded .
 
-When set, rclonefzf will not use terminal title save and restore
-sequences.
+.TP
+.B VERBOSE
+Enable verbose logging output.
 
+.TP
+.B RCLONEFZF_PAGER
+Pager used to display help, config, and keybindings
+(e.g.
+.BR less ,
+.BR bat ).
+
+.TP
+.B RCLONE_MAX_DEPTH
+Maximum directory depth used when listing and previewing files.
+
+.SH DEPENDENCIES
+rclonefzf requires the following commands to be available in PATH:
+
+.RS
+.IP \(bu 2
+.B rclone
+.IP \(bu 2
+.B fzf
+.RE
+
+.SH EXIT STATUS
+.TP
+.B 0
+Successful execution.
+
+.TP
+.B 1
+An error occurred.
 
 .SH SEE ALSO
+.BR rclone (1)
 .BR fzf (1)
-.BR yay (1)
-
 
 .SH AUTHOR
 Conner Will <conner.will@connerwill.com>
