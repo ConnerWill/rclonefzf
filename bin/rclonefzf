@@ -2,15 +2,15 @@
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 #shellcheck disable=2016,2034,2154,2249,2310
 
-set -Eeuo pipefail
+set -Eeo pipefail
 IFS=$'\n\t'
 
 #######################################
 # Script metadata
 #######################################
 readonly SCRIPT_NAME="${0##*/}"
-readonly SCRIPT_DESCRIPTION="Fullscreen interactive AUR / repo package manager using yay + fzf"
-readonly VERSION="2.0.1"
+readonly SCRIPT_DESCRIPTION=""
+readonly VERSION="1.0.0"
 
 #######################################
 # Config locations (precedence order)
@@ -26,15 +26,14 @@ readonly CONFIG_PATHS=(
 # Defaults (override via config)
 #######################################
 THEME="default"
-SORT_BY="popularity"
 PREVIEW_WINDOW="right:60%:wrap"
 LAYOUT="reverse"
 BORDER="rounded"
-PROMPT="${SCRIPT_NAME}> "
 ENABLE_PREVIEW=true
 VERBOSE=false
 CTRL_C_CLOSE=true
 RCLONEFZF_PAGER="${PAGER:-less}"
+RCLONE_MAX_DEPTH=10
 
 #######################################
 # Built-in themes
@@ -267,20 +266,19 @@ EOF
 # TODO: Add more keybindings
 #  ?                   Show keybindings
 #  Ctrl-h              Show help
-#  Ctrl-d              Deselect all
-#  Ctrl-i              Install selected
-#  Ctrl-r              Remove selected
-#  Ctrl-u              Update system
-#  Ctrl-v              Toggle preview
-#  Ctrl-/              Toggle layout
-#  Ctrl-l              Clear query
+#  CTRL-s              Save selection
 show_keybindings() {
   cat <<'EOF'
 KEYBINDINGS:
 
-  ENTER               Perform action on selection
-  TAB / Shift-TAB     Select / Unselect
-  Ctrl-c / ESC        Exit
+  ENTER                     Perform action on selection
+  TAB / Shift-TAB           Select / Unselect
+  CTRL-d                    Deselect all
+  CTRL-l / CTRL-Backspace   Clear query
+  CTRL-/                    Change layout
+  CTRL-v                    Toggle preview
+  ?                         Show keybindings
+  CTRL-c / ESC              Exit
 
 
 EOF
@@ -331,9 +329,6 @@ LAYOUT="reverse"
 # Border style: default, rounded
 BORDER="rounded"
 
-# Prompt for fzf
-PROMPT="${SCRIPT_NAME}> "
-
 # Enable preview window
 ENABLE_PREVIEW=true
 
@@ -345,6 +340,9 @@ RCLONEFZF_PAGER="${PAGER:-less}"
 
 # Close rclonefzf with 'ctrl-c' keypress
 CTRL_C_CLOSE=true
+
+# rclone max depth, how deep to view down tree
+RCLONE_MAX_DEPTH=10
 
 #vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 EOF
@@ -384,7 +382,7 @@ while [[ $# -gt 0 ]]; do
     -h)               show_help;           exit 0 ;;
     --help)           show_help_full;      exit 0 ;;
     -V|--version)     show_version;        exit 0 ;;
-    *) SEARCH_QUERY="${1}"; shift ;;
+    *)                SEARCH_QUERY="${1}"; shift  ;;
   esac
 done
 
@@ -393,7 +391,7 @@ done
 #######################################
 load_config
 resolve_theme
-require_cmd "yay"
+require_cmd "rclone"
 require_cmd "fzf"
 
 if [[ "${CONFIG_INIT}" == true ]]; then
@@ -402,101 +400,100 @@ if [[ "${CONFIG_INIT}" == true ]]; then
 fi
 
 #######################################
-# Build fzf options (fullscreen only)
+# Build fzf options
 #######################################
 FZF_OPTS=(
   --ansi
   --layout="${LAYOUT}"
   --border="${BORDER}"
-  --prompt="${PROMPT}"
   --color="$(printf '%s' "${FZF_COLORS}" | tr '\n' ',' | sed 's/,$//')"
+  --bind='esc:abort'
+  --header='Press ? for keybindings'
+  --bind="?:preview(echo '$(show_keybindings)')"
 )
-
 if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
   FZF_OPTS+=( --preview-window="${PREVIEW_WINDOW}" )
 fi
-
 readonly FZF_OPTS
+
+FZF_BIND_OPTIONS=(
+  --bind='ctrl-/:change-preview-window(up,border-rounded|up,40%,border-rounded|left,border-rounded|left,border-rounded,40%|down,border-rounded|down,40%,border-rounded|down,10%,border-rounded|hidden|right,40%,border-rounded|right,70%,border-rounded|right,90%,border-rounded)'
+  --bind='ctrl-l:clear-query+clear-screen+clear-selection'
+  --bind='ctrl-d:deselect-all'
+  --bind='ctrl-bspace:clear-query'
+  --bind='ctrl-v:toggle-preview'
+)
+readonly FZF_BIND_OPTIONS
+
+#######################################
+# Build rclone options
+#######################################
+RCLONE_LSF_OPTIONS=(
+  --recursive
+  --max-depth="${RCLONE_MAX_DEPTH}"
+  --fast-list
+  --files-only
+)
+
+RCLONE_CAT_OPTIONS=(
+  --max-depth="${RCLONE_MAX_DEPTH}"
+)
+
+readonly RCLONE_LSF_OPTIONS
+readonly RCLONE_CAT_OPTIONS
 
 #######################################
 # Core actions
 #######################################
-search_packages() {
-  yay -Ss --sortby "${SORT_BY}" |
-    awk '/^[^[:space:]]/ { print $1 }' |
-    fzf "${FZF_OPTS[@]}" \
-      --query="${SEARCH_QUERY}" \
-      --multi \
-      --preview 'yay -Si {}'
+
+list_remotes() {
+  # Return if RCLONE_REMOTES already has entries
+  (( ${#RCLONE_REMOTES[@]} > 0 )) && return 0
+
+  local -a remotes
+
+  if ! mapfile -t remotes < <(rclone listremotes); then
+    die "Failed to list rclone remotes"
+  fi
+
+  (( ${#remotes[@]} > 0 )) || die "No remotes found. Please configure rclone: rclone config"
+
+  # Strip trailing ':' from each remote
+  local i
+  for i in "${!remotes[@]}"; do
+    remotes[i]="${remotes[i]%:}"
+  done
+
+  RCLONE_REMOTES=(
+    "${remotes[@]}"
+    "Install config"
+    "Show config"
+    "Keybindings"
+    "Help"
+    "Exit"
+  )
 }
 
-install_packages() {
-  local pkgs pkgs_arr
+file_viewer() {
+  local rclone_remote file_viewer_prompt selection selection_arr
+  rclone_remote="${1}"
+  file_viewer_prompt="${rclone_remote}: "
 
-  pkgs="$(search_packages || true)"
-  [[ -z "${pkgs}" ]] && info "No packages selected for installation." && return
+  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}'" || true)
+  [[ -z "${selection}" ]] && info "No files selected." && return
 
-  mapfile -t pkgs_arr <<< "${pkgs}"
-
-  info "Installing packages: ${pkgs_arr[*]} ..."
-  if yay -S --needed "${pkgs_arr[@]}"; then
-    success "Installation complete."
-  else
-    die "Installation failed for: ${pkgs_arr[*]}"
-  fi
-}
-
-remove_packages() {
-  local pkgs pkgs_arr
-
-  # Gather list of selected packages
-  pkgs="$(yay -Qq | fzf "${FZF_OPTS[@]}" --multi --preview 'yay -Qi {}' || true)"
-  [[ -z "${pkgs}" ]] && info "No packages selected for removal." && return
-
-  mapfile -t pkgs_arr <<< "${pkgs}"
-
-  # Confirm removal
-  if ! confirm "Remove packages: ${pkgs_arr[*]} ?"; then
-    info "Removal cancelled."
-    return
-  fi
-
-  # Remove packages
-  info "Removing packages: ${pkgs_arr[*]} ..."
-  if yay -Rns "${pkgs_arr[@]}"; then
-    success "Removal complete."
-  else
-    die "Removal failed for: ${pkgs_arr[*]}"
-  fi
-}
-
-update_system() {
-  if ! confirm "Update entire system?"; then
-    info "Update cancelled."
-    return
-  fi
-
-  info "Starting system update (syncing all packages) ..."
-  if yay -Syu; then
-    success "System update completed successfully."
-  else
-    die "System update failed. Check above output for errors."
-  fi
+  mapfile -t selection_arr <<< "${selection}"
+  printf '%s\n' "${selection_arr[@]}" | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt} Selected Files: " --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}'" || true
 }
 
 #######################################
 # Main menu
 #######################################
 main_menu() {
-  printf '%s\n'        \
-    "Install packages" \
-    "Remove packages"  \
-    "Update system"    \
-    "Install config"   \
-    "Show config"      \
-    "Help"             \
-    "Exit" |
-    fzf "${FZF_OPTS[@]}"
+  local main_menu_prompt
+  main_menu_prompt="Select rclone remote or option :> "
+  list_remotes
+  printf '%s\n' "${RCLONE_REMOTES[@]}" | fzf "${FZF_OPTS[@]}" --prompt="${main_menu_prompt}"
 }
 
 #######################################
@@ -511,13 +508,30 @@ main() {
     fi
 
     case "${choice}" in
-      "Install packages") install_packages                                ;;
-      "Remove packages")  remove_packages                                 ;;
-      "Update system")    update_system                                   ;;
-      "Install config")   install_example_config;                  exit 0 ;;
-      "Show config")      show_example_config | "${RCLONEFZF_PAGER}"; exit 0 ;;
-      "Help")             show_help_full | "${RCLONEFZF_PAGER}";      exit 0 ;;
-      "Exit"|"" )         exit 0                                          ;;
+      "Install config")
+        install_example_config;
+        exit 0
+        ;;
+      "Show config")
+        show_example_config | "${RCLONEFZF_PAGER}";
+        A
+        exit 0
+        ;;
+      "Keybindings")
+        show_keybindings | "${RCLONEFZF_PAGER}";
+        exit 0
+        ;;
+      "Help")
+        show_help_full | "${RCLONEFZF_PAGER}";
+        exit 0
+        ;;
+      "Exit"|"")
+        exit 0
+        ;;
+      *)
+        RCLONE_REMOTE="${choice}"
+        file_viewer "${RCLONE_REMOTE}"
+        ;;
     esac
   done
 }
