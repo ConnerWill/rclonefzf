@@ -2,9 +2,9 @@
 
 <img width="720" height="480" src="/docs/images/demo-screenshot.png">
 
-# **ｙａｙｆｚｆ**
+# rclonefzf
 
-> *AUR package **[fzf][fzf-url]** finder to search, install, remove, and manage packages using yay **[yay][yay-url]***
+> ***rclonefzf** is an interactive terminal UI for browsing and viewing files on **[rclone][rclone-url]** remotes using **[fzf][fzf-url]***
 
 [![Shellcheck][shellcheck-badge]][shellcheck-workflow]
 [![GitHub last commit][github-last-commit-badge]][github-commits]
@@ -25,26 +25,34 @@
 
 # Description
 
-AUR package [fzf][fzf-url] finder to search, install, remove, and manage packages using **[yay][yay-url]**
+rclonefzf is an interactive terminal UI for browsing and viewing files on rclone remotes using **[fzf][fzf-url]**
+
+It provides a fast, keyboard-driven interface to select configured rclone remotes, recursively browse files, preview file contents inline, and manage selections — all from the terminal.
 
 
 <img width="100%" src="https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png">
 
 # Table of Contents
 
-* [<strong>ｙａｙｆｚｆ</strong>](#ｙａｙｆｚｆ)
-* [Description](#description)
-* [Table of Contents](#table-of-contents)
-* [Screenshots](#screenshots)
-* [Installation](#installation)
-  * [Dependencies](#dependencies)
-* [Usage](#usage)
-  * [Hotkeys](#hotkeys)
-  * [Customization](#customization)
-* [Other](#other)
-  * [Wiki](#wiki)
-  * [Contributing](#contributing)
-  * [Donate](#donate)
+<!--toc:start-->
+- [**rclonefzf**](#rclonefzf)
+- [Description](#description)
+- [Table of Contents](#table-of-contents)
+- [Screenshots](#screenshots)
+- [rclonefzf](#rclonefzf)
+  - [Features](#features)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+    - [AUR](#aur)
+    - [Git](#git)
+  - [Usage](#usage)
+  - [Options](#options)
+  - [Configuration](#configuration)
+    - [Common configuration options](#common-configuration-options)
+  - [See Also](#see-also)
+  - [Contributing](#contributing)
+  - [Donate](#donate)
+<!--toc:end-->
 
 <img width="100%" src="https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png">
 
@@ -57,160 +65,119 @@ AUR package [fzf][fzf-url] finder to search, install, remove, and manage package
 
 </div>
 
-See the [wiki][wiki-screenshots-url] for more screenshots/demos
+# rclonefzf
 
-<img width="100%" src="https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png">
 
-# Installation
+## Features
 
-See the [wiki][wiki-installation-url] for installation instructions
+* Interactive menu for selecting rclone remotes
+* Recursive file browsing with configurable depth
+* Inline file preview using `rclone cat`
+* Multi-select support via fzf
+* Toggleable preview window
+* Multiple built-in color themes
+* Configurable layout, borders, and keybindings
+* XDG-compliant configuration file support
 
-## Dependencies
+## Requirements
 
-* **fzf**
-* **yay**
+- `rclone`
+- `fzf`
 
-*Make sure you have **[fzf][fzf-url]** and **[yay][yay-url]** installed as they are the meat and potatoes of this script*
+## Installation
 
-<!--TODO
-If you are not using [yay] and would like to use a different package manager, see [Using a Different Package Manager](#using-a-different-package-manager) below
--->
+### AUR
 
-See the [wiki][wiki-installation-url] for more information
-
-<img width="100%" src="https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png">
-
-# Usage
-
-If you added the script to your PATH as mentioned [above](#installation), you can run the command `rclonefzf`
-
-`rclonefzf` can be either be executed directly or can be sourced to be invoked later
-
-> Running directly
-```console
-./rclonefzf
+```bash
+yay -S rclonefzf
+```
+```
 ```
 
-> Running if added to *$PATH*
-```console
+### Git
+
+Clone the repository and make the script executable:
+
+```bash
+git clone https://github.com/yourusername/rclonefzf.git
+cd rclonefzf
+chmod +x bin/rclonefzf
+```
+
+Optionally, move it to a directory in your PATH:
+
+```bash
+sudo install -Dm755 "bin/rclonefzf" "/usr/local/bin/rclonefzf"  # Main executable
+sudo install -Dm644 "docs/README.md" "/usr/share/doc/rclonefzf/README.md"  # Documentation
+sudo install -Dm644 "docs/rclonefzf.1" "/usr/share/man/man1/rclonefzf.1"  # Man page
+sudo install -Dm644 "LICENSE" "/usr/share/licenses/rclonefzf/LICENSE"  # License
+sudo install -Dm644 "completion/_rclonefzf" "/usr/share/zsh/site-functions/_rclonefzf"  # ZSH completion
+sudo install -Dm644 "completion/rclonefzf_completion.sh" "/usr/share/bash-completion/completions/rclonefzf"  # Bash completion
+```
+
+## Usage
+
+Launch the interactive interface:
+
+```sh
 rclonefzf
 ```
 
-> Sourcing and invoking later
-```shell
-source rclonefzf
+Launch with an initial search query:
 
-rclonefzf
+```sh
+rclonefzf "query"
 ```
 
-Running `rclonefzf` without any arguments or queries will list *all availiable packages* to be interactively searched using [fzf][fzf-url]
+## Options
 
-> *Example of running the script with no search query*
+| Option | Description |
+|--------|-------------|
+| `-k`, `--keybindings` | Show keybindings and exit |
+| `--init-config` | Install example configuration file |
+| `--show-config` | Show example configuration file content |
+| `-h` | Show short help |
+| `--help` | Show full help |
+| `-V`, `--version` | Show version |
 
-```shell
-rclonefzf
-```
 
-> *Example of running the script with input searching for "fzf"*
 
-```shell
-rclonefzf fzf
-```
+| Key | Action |
+|-----|--------|
+| <kbd>ENTER</kbd> | Perform action on selection |
+| <kbd>TAB</kbd> | Select item |
+| <kbd>Shift</kbd>+<kbd>TAB</kbd> | Unselect item |
+| <kbd>CTRL</kbd>+<kbd>d</kbd> | Deselect all items |
+| <kbd>CTRL</kbd>+<kbd>l</kbd> / CTRL-Backspace | Clear search query |
+| <kbd>CTRL</kbd>+<kbd>/</kbd> | Change layout |
+| <kbd>CTRL</kbd>+<kbd>v</kbd> | Toggle preview window |
+| <kbd>?</kbd> | Show keybindings |
+| <kbd>CTRL</kbd>+<kbd>c</kbd> / <kbd>ESC</kbd> | Exit rclonefzf |
 
-## Hotkeys
+## Configuration
 
-There are specific hotkeys that allow you to interact with [rclonefzf][github-repo]
-Allowing you to install/remove packages, nagivate and view other packages, and change the fzf window formatting.
+rclonefzf looks for configuration files in this order (uses the first file found):
 
-<details>
-  <summary>Click to hotkeys section</summary>
+- `$XDG_CONFIG_HOME/rclonefzf/rclonefzf.conf`
+- `$HOME/.config/rclonefzf/rclonefzf.conf`
+- `$HOME/.rclonefzf.conf`
 
-<br>
+### Common configuration options
 
-> *Here is a list of the default hotkeys*
+- `THEME` — Color theme *(default, light, tokyo-night, neon)*
+- `PREVIEW_WINDOW` — fzf preview window layout and size
+- `ENABLE_PREVIEW` — Show preview window *(true or false)*
+- `LAYOUT` — fzf layout *(default or reverse)*
+- `BORDER` — fzf border style *(default or rounded)*
+- `VERBOSE` — Enable verbose logging *(true or false)*
+- `RCLONEFZF_PAGER` — Pager for help/config/keybindings *(less, bat, etc.)*
+- `RCLONE_MAX_DEPTH` — Max depth for directory browsing
 
-<kbd>`TAB`</kbd>+<kbd>`d`</kbd> : Select
+## See Also
 
-<kbd>`SHIFT`</kbd>+<kbd>`TAB`</kbd> : Unselect
+- [rclone][rclone-url]
+- [fzf][fzf-url]
 
-<kbd>`CTRL`</kbd>+<kbd>`d`</kbd> : Deselect all
-
-<kbd>`CTRL`</kbd>+<kbd>`i`</kbd> : Install selected packages
-
-<kbd>`CTRL`</kbd>+<kbd>`r`</kbd> : Uninstall selected packages
-
-<kbd>`CTRL`</kbd>+<kbd>`u`</kbd> : Update all packages
-
-<kbd>`CTRL`</kbd>+<kbd>`n`</kbd> : History next
-
-<kbd>`CTRL`</kbd>+<kbd>`p`</kbd> : History previous
-
-<kbd>`CTRL`</kbd>+<kbd>`/`</kbd> : Change layout
-
-<kbd>`CTRL`</kbd>+<kbd>`v`</kbd> : Hide/show preview
-
-<kbd>`HOME`</kbd> : Top
-
-<kbd>`END`</kbd> : Bottom
-
-<kbd>`PGUP`</kbd> : Scroll one page up
-
-<kbd>`PGDN`</kbd> : Scroll one page down
-
-<kbd>`CTRL`</kbd>+<kbd>`h`</kbd> : Show help
-
-<kbd>`?`</kbd> : Show keybindings
-
-<kbd>`CTRL`</kbd>+<kbd>`c`</kbd> : Exit
-
-<kbd>`CTRL`</kbd>+<kbd>`q`</kbd> : Exit
-
-<kbd>`ESC`</kbd> : Exit
-
-```manpage
-KEYBINDINGS:
-
-                     TAB : Select
-               Shift-TAB : Unselect
-                  Ctrl-d : Deselect all
-                  Ctrl-i : Install selected
-                  Ctrl-r : Uninstall selected
-                  Ctrl-u : Update all packages
-                  Ctrl-n : History next
-                  Ctrl-p : History previous
-                  Ctrl-/ : Change layout
-                  Ctrl-v : Hide/show preview
-                    HOME : Top
-                     END : Bottom
-                  PAGEUP : Scroll one page up
-                PAGEDOWN : Scroll one page down
-                  Ctrl-l : Clear query
-           Alt-backspace : Clear query
-                Alt-left : Delete word
-                 Ctrl-h  : Show help
-                       ? : Show keybindings
-                  Ctrl-c : Exit
-                  Ctrl-q : Exit
-                     ESC : Exit
-```
-
-> *Other than running the script and finding out for yourself, I suggest reading the [fzf][fzf-url] documentation if you want to learn more about the keybindings.*
-
-</details>
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## Customization
-
-See the [wiki][wiki-customization-url]
-
-<img width="100%" src="https://raw.githubusercontent.com/ConnerWill/Project-Template/main/assets/lines/rainbow.png">
-
-# Other
-
-## Wiki
-
-Check out the [wiki][wiki-url] for more information
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -289,5 +256,5 @@ git push origin AmazingNewFeature
 [wiki-screenshots-url]: https://github.com/ConnerWill/rclonefzf/wiki/Screenshots
 
 [fzf-url]: httaps://github.com/junegunn/fzf
-[yay-url]: https://github.com/Jguer/yay
+[rclone-url]: https://rclone.org
 [rclonefzf-source]: https://github.com/ConnerWill/rclonefzf/blob/main/bin/rclonefzf
