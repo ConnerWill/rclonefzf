@@ -10,6 +10,7 @@ readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
 readonly SCRIPT_DIR="${REPO_ROOT}/scripts"
 readonly SCRIPT_LIB="${SCRIPT_DIR}/lib.sh"
 readonly PROG="$(basename "${BASH_SOURCE[0]}")"
+readonly BRANCH="main"
 readonly SCRIPT_DESCRIPTION="Script to bump version, create release, publish to AUR"
 if [[ -z "${NO_COLOR}" ]]; then
   TEXT_RED='\x1B[0;38;5;196m'
@@ -80,7 +81,15 @@ readonly CURRENT_VERSION="${1}"
 readonly NEW_VERSION="${2}"
 
 is_installed "git"
+cd_directory "${REPO_ROOT}"
+checkout_branch "${BRANCH}"
+commit_files "[AUTOMATED] Increase version from ${CURRENT_VERSION} to ${NEW_VERSION}"
 
+info "Running: bump-version.sh"
 bash "${SCRIPT_DIR}/bump-version.sh" "${CURRENT_VERSION}" "${NEW_VERSION}"
+
+info "Running: create-release.sh"
 bash "${SCRIPT_DIR}/create-release.sh" "${NEW_VERSION}"
+
+info "Running: push-to-aur.sh"
 bash "${SCRIPT_DIR}/push-to-aur.sh"
