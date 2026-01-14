@@ -10,7 +10,7 @@ readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
 readonly SCRIPT_DIR="${REPO_ROOT}/scripts"
 readonly SCRIPT_LIB="${SCRIPT_DIR}/lib.sh"
 readonly PROG="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DESCRIPTION="Create Github release"
+readonly SCRIPT_DESCRIPTION="Delete Github release"
 if [[ -z "${NO_COLOR}" ]]; then
   TEXT_RED='\x1B[0;38;5;196m'
   TEXT_YELLOW='\x1B[0;38;5;226m'
@@ -60,11 +60,15 @@ SYNOPSIS:
 
 EXAMPLES:
 
-    Create 2.0.1 release
+    Delete 2.0.1 release
 
         $ ${PROG} 2.0.1
 
-    Show this help
+    Delete latest release
+
+        $ ${PROG}
+
+    Show help
 
         $ ${PROG} -h
 
@@ -73,48 +77,51 @@ EOF
   exit 1
 }
 
-create_release() {
-  local release_version="v${1}"
-  local asset_path="${2}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Creating release: ${release_version} ..."
-  fi
-  if gh release create "${release_version}" --latest --generate-notes --fail-on-no-commits "${asset_path}"; then
-    success "Created release: ${release_version}"
+check_release() {
+  local release_version="${1}"
+  if gh release view "${release_version}" >/dev/null 2>&1; then
+    return 0
   else
-    die "Unable to create release: ${release_version}"
+    die "Cannot find release: ${release_version}"
+  fi
+}
+
+delete_release() {
+  local release_version="${1}"
+  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
+    info "Deleting release: ${release_version} ..."
+  fi
+
+  if gh release delete "${release_version}" --yes --cleanup-tag; then
+    success "Deleted release: ${release_version}"
+  else
+    die "Unable to delete release: ${release_version}"
   fi
 }
 
 #######################################
 # MAIN
 #######################################
+
 while [[ $# -gt 0 ]]; do
   case "${1}" in
     -h|--help) usage ;;
+    -*)        usage ;;
     *)         shift ;;
   esac
 done
+
 
 is_installed "git"
 
 cd_directory "${REPO_ROOT}"
 
-check_uncommitted_files
-
-checkout_branch "${BRANCH}"
-
-readonly NEW_VERSION="${1}"
-readonly CURRENT_VERSION="$(get_latest_tag)"
-
-validate_version "${NEW_VERSION}"
-
-check_version_updated "${CURRENT_VERSION}" "${NEW_VERSION}"
-
-compare_versions "${CURRENT_VERSION}" "${NEW_VERSION}"
+RELEASE_VERSION="${1}"
+if [[ -z "${RELEASE_VERSION}" ]]; then
+  RELEASE_VERSION="$(get_latest_tag)"
+fi
 
 is_installed "gh"
 
-create_release "${NEW_VERSION}" "${ASSET}"
-
-# gh release delete --yes --cleanup-tag v2.0.1
+check_release "${RELEASE_VERSION}"
+delete_release "${RELEASE_VERSION}"

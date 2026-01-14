@@ -10,7 +10,7 @@ readonly REPO_ROOT="$(git rev-parse --show-toplevel)"
 readonly SCRIPT_DIR="${REPO_ROOT}/scripts"
 readonly SCRIPT_LIB="${SCRIPT_DIR}/lib.sh"
 readonly PROG="$(basename "${BASH_SOURCE[0]}")"
-readonly SCRIPT_DESCRIPTION="Script to update semantic version in all files in a repo"
+readonly SCRIPT_DESCRIPTION="Script to bump version, create release, publish to AUR"
 if [[ -z "${NO_COLOR}" ]]; then
   TEXT_RED='\x1B[0;38;5;196m'
   TEXT_YELLOW='\x1B[0;38;5;226m'
@@ -62,7 +62,7 @@ EXAMPLES:
 
     Show this help
 
-        $ ${PROG}
+        $ ${PROG} -h
 
 
 EOF
@@ -80,37 +80,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-is_installed "git"
-
 readonly CURRENT_VERSION="${1}"
 readonly NEW_VERSION="${2}"
 
-validate_version "${CURRENT_VERSION}"
-validate_version "${NEW_VERSION}"
+echo "Current: ${CURRENT_VERSION}"
+echo "New: ${NEW_VERSION}"
 
-compare_versions "${CURRENT_VERSION}" "${NEW_VERSION}"
+is_installed "git"
 
-cd_directory "${REPO_ROOT}"
-
-# Find tracked files containing the current version
-mapfile -t VERSION_FILES < <(
-  git grep -l "${CURRENT_VERSION}" || true
-)
-
-if [[ "${#VERSION_FILES[@]}" -eq 0 ]]; then
-  die "no files found containing version ${CURRENT_VERSION}"
-fi
-
-printf "${TEXT_YELLOW}Updating version ${TEXT_GREEN}${TEXT_BOLD}%s${TEXT_RESET} ${TEXT_YELLOW}->${TEXT_RESET} ${TEXT_GREEN}${TEXT_BOLD}%s${TEXT_RESET}\n\n" "${CURRENT_VERSION}" "${NEW_VERSION}"
-printf "${TEXT_YELLOW}${TEXT_BOLD}${TEXT_UNDERLINE}Files to be updated${TEXT_RESET}:${TEXT_RESET}\n"
-for file in "${VERSION_FILES[@]}"; do
-  printf '  - %s\n' "${file}"
-done
-printf '\n'
-
-# Perform in-place replacement
-for file in "${VERSION_FILES[@]}"; do
-  sed -i -E -e "s/(v?)${CURRENT_VERSION}/\1${NEW_VERSION}/g" "${file}"
-done
-
-printf "${TEXT_GREEN}Version bump complete${TEXT_RESET}\n\n"
+bash "${SCRIPT_DIR}/bump-version.sh" "${CURRENT_VERSION}" "${NEW_VERSION}"
+bash "${SCRIPT_DIR}/create-release.sh" "${NEW_VERSION}"
+bash "${SCRIPT_DIR}/push-to-aur.sh"
