@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
-#shellcheck disable=2016,2034,2154,2249,2310
+#shellcheck disable=2016,2034,2154,2249,2310,2312
 
 set -Eeo pipefail
 IFS=$'\n\t'
@@ -479,10 +479,12 @@ file_viewer() {
   rclone_remote="${1}"
   file_viewer_prompt="${rclone_remote}: "
 
+  #shellcheck disable=2145
   selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}'" || true)
   [[ -z "${selection}" ]] && info "No files selected." && return
 
   mapfile -t selection_arr <<< "${selection}"
+  #shellcheck disable=2145
   printf '%s\n' "${selection_arr[@]}" | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt} Selected Files: " --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}'" || true
 }
 
