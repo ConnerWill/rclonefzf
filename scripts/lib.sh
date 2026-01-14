@@ -78,7 +78,7 @@ commit_files() {
   fi
 
   if git push --verbose; then
-    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && info "Added files ..."
+    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && info "pushing files ..."
   else
     die "Unable to push"
   fi

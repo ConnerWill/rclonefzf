@@ -66,7 +66,7 @@ EXAMPLES:
 
     Show this help
 
-        $ ${PROG} -h
+        $ ${PROG}
 
 
 EOF
@@ -89,12 +89,9 @@ create_release() {
 #######################################
 # MAIN
 #######################################
-while [[ $# -gt 0 ]]; do
-  case "${1}" in
-    -h|--help) usage ;;
-    *)         shift ;;
-  esac
-done
+if [[ "${#}" -ne 1 ]]; then
+  usage
+fi
 
 is_installed "git"
 
