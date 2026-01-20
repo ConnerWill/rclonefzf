@@ -275,11 +275,14 @@ KEYBINDINGS:
   TAB / Shift-TAB           Select / Unselect
   CTRL-a                    Select all
   CTRL-d                    Deselect all
-  CTRL-l / CTRL-Backspace   Clear query
+  CTRL-l                    Clear query
+  CTRL-Backspace            Clear query
   CTRL-/                    Change layout
   CTRL-v                    Toggle preview
   ?                         Show keybindings
-  CTRL-c / ESC              Exit
+  CTRL-c                    Exit
+  CTRL-w                    Exit
+  ESC                       Exit
 
 
 EOF
@@ -426,6 +429,7 @@ FZF_BIND_OPTIONS=(
   --bind='ctrl-d:deselect-all'
   --bind='ctrl-bspace:clear-query'
   --bind='ctrl-v:toggle-preview'
+  --bind='ctrl-w:abort'
 )
 readonly FZF_BIND_OPTIONS
 
