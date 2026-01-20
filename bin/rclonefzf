@@ -10,7 +10,7 @@ IFS=$'\n\t'
 #######################################
 readonly SCRIPT_NAME="${0##*/}"
 readonly SCRIPT_DESCRIPTION="Interactive terminal UI for browsing and viewing files on rclone remotes using fzf"
-readonly VERSION="1.0.3"
+readonly VERSION="1.0.4"
 
 #######################################
 # Config locations (precedence order)
@@ -273,6 +273,7 @@ KEYBINDINGS:
 
   ENTER                     Perform action on selection
   TAB / Shift-TAB           Select / Unselect
+  CTRL-a                    Select all
   CTRL-d                    Deselect all
   CTRL-l / CTRL-Backspace   Clear query
   CTRL-/                    Change layout
@@ -421,6 +422,7 @@ readonly FZF_OPTS
 FZF_BIND_OPTIONS=(
   --bind='ctrl-/:change-preview-window(up,border-rounded|up,40%,border-rounded|left,border-rounded|left,border-rounded,40%|down,border-rounded|down,40%,border-rounded|down,10%,border-rounded|hidden|right,40%,border-rounded|right,70%,border-rounded|right,90%,border-rounded)'
   --bind='ctrl-l:clear-query+clear-screen+clear-selection'
+  --bind='ctrl-a:select-all'
   --bind='ctrl-d:deselect-all'
   --bind='ctrl-bspace:clear-query'
   --bind='ctrl-v:toggle-preview'
