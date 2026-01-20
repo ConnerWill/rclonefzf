@@ -488,12 +488,12 @@ file_viewer() {
   file_viewer_prompt="Remote: '${rclone_remote}': "
 
   #shellcheck disable=2145
-  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}' >/dev/null 2>&1" || true)
+  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat ${RCLONE_CAT_OPTIONS[*]} \"${rclone_remote}:\"'{}' 2>/dev/null" || true)
   [[ -z "${selection}" ]] && verbose "No files selected." && return
 
   mapfile -t selection_arr <<< "${selection}"
   #shellcheck disable=2145
-  printf '%s\n' "${selection_arr[@]}" | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt} Selected Files: " --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{}' >/dev/null 2>&1" || true
+  printf '%s\n' "${selection_arr[@]}" | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt} Selected Files: " --preview "rclone cat ${RCLONE_CAT_OPTIONS[*]} \"${rclone_remote}:\"'{}' 2>/dev/null" || true
 }
 
 #######################################
