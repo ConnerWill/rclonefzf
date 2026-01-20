@@ -67,8 +67,6 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
 
 </div>
 
-# rclonefzf
-
 
 ## Features
 
@@ -99,7 +97,7 @@ yay -S rclonefzf
 Clone the repository and make the script executable:
 
 ```bash
-git clone https://github.com/yourusername/rclonefzf.git
+git clone https://github.com/connerwill/rclonefzf.git
 cd rclonefzf
 chmod +x bin/rclonefzf
 ```
