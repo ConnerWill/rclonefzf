@@ -63,7 +63,6 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
  <div align="center">
 
 | ![demo screenshot](/docs/images/demo-screenshot.png) | ![demo screenshot_2](/docs/images/demo-screenshot-2.png) |
-| ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | ![demo screenshot](/docs/images/demo-screenshot.png) | ![demo screenshot_2](/docs/images/demo-screenshot-2.png) |
 | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 
