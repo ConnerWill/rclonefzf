@@ -408,7 +408,7 @@ ensure_download_dir() {
   fi
 
   # Export the final value so the rest of the script uses it
-  RCLONEFZF_DOWNLOADS_DIR="${dir_to_use}"
+  RCLONEFZF_DOWNLOADS_DIR="${dir_to_use%/}/"
   export RCLONEFZF_DOWNLOADS_DIR
 
   verbose "Final download directory: ${RCLONEFZF_DOWNLOADS_DIR}"
@@ -537,22 +537,42 @@ file_viewer() {
   rclone_remote="${1}"
   file_viewer_prompt="Remote: '${rclone_remote}': "
 
-  # --bind="ctrl-s:execute(echo $(copy_file ${rclone_remote} {+}))"
+  # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
   #shellcheck disable=2145
-  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --bind "ctrl-s:execute(
-          printf '%s\n' {+} |
-          while IFS= read -r file; do
-            echo rclone copy \"${rclone_remote}:\${file}\" \"${RCLONEFZF_DOWNLOADS_DIR}/\" $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
-              echo \"✓ \${file}\" || echo \"✗ \${file}\"
-          done
-        )+abort" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
+  selection=$(
+    rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null |
+      fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
+        --bind "ctrl-s:execute(
+            printf '%s\n' {+} |
+            while IFS= read -r file; do
+              echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}/\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+              echo \"  ✓ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\" ||
+              echo \"  ✗ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\"
+            done)+abort"                 \
+        --multi                          \
+        --prompt "${file_viewer_prompt}" \
+        --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
   [[ -z "${selection}" ]] && verbose "No files selected." && return
 
   mapfile -t selection_arr <<< "${selection}"
+  # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
   #shellcheck disable=2145
-  printf '%s\n' "${selection_arr[@]}" | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt} Selected Files: " --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true
+  printf '%s\n' "${selection_arr[@]}" |
+    fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
+      --bind "ctrl-s:execute(
+          printf '%s\n' {+} |
+          while IFS= read -r file; do
+            echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}/\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+              echo \"  ✓ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\" ||
+              echo \"  ✗ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\"
+          done)+abort"                                  \
+      --multi                                           \
+      --prompt "${file_viewer_prompt} Selected Files: " \
+      --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true
 }
 
+# TODO: Remove this function. not used.
+# --bind="ctrl-s:execute(echo $(copy_file ${rclone_remote} {+}))"
 copy_file() {
   local rclone_remote rclone_files local_dest
   rclone_remote="${1}"
