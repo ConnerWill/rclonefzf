@@ -37,7 +37,7 @@ info() {
 success() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
-  printf '%b%s%b%s%b\n' "${TEXT_BG_BLUE}${TEXT_WHITE}${TEXT_BOLD}" " SUCCESS " "${TEXT_RESET}${TEXT_BLUE}" " ${msg}" "${TEXT_RESET}"
+  printf '%b%s%b%s%b\n' "${TEXT_BG_GREEN}${TEXT_WHITE}${TEXT_BOLD}" " SUCCESS " "${TEXT_RESET}${TEXT_GREEN}" " ${msg}" "${TEXT_RESET}"
 }
 
 get_latest_tag() {
@@ -76,7 +76,7 @@ check_uncommitted_files() {
   fi
   git_status_output="$(git status --porcelain)"
   if [[ -n "${git_status_output}" ]]; then
-    printf "Files not committed:\n"
+    info "Files not committed:"
     printf "%s\n" "${git_status_output}"
     die "There are uncommitted changes in this repository"
   else
@@ -154,7 +154,7 @@ check_version_updated() {
       success "No occurrences of current version: '${current_version}' found"
     fi
   else
-    printf "Found occurrences of current version '${current_version}' in the following files:\n"
+    info "Found occurrences of current version '${current_version}' in the following files:\n"
     printf "%s\n" "${matches}"
     die "You may have not updated the version in every file. Run 'bump-version.sh' to update the version"
   fi
