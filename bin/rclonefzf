@@ -352,6 +352,7 @@ RCLONE_MAX_DEPTH=10
 # Directory to save downloaded files to
 RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/rclonefzf}"
 
+
 #vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 EOF
 }
