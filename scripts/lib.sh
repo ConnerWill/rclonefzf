@@ -37,7 +37,7 @@ info() {
 success() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
-  printf '%b%s%b%s%b\n' "${TEXT_BG_GREEN}${TEXT_WHITE}${TEXT_BOLD}" " SUCCESS " "${TEXT_RESET}${TEXT_GREEN}" " ${msg}" "${TEXT_RESET}"
+  printf '%b%s%b%s%b\n' "${TEXT_BG_GREEN}${TEXT_BLACK}${TEXT_BOLD}" " SUCCESS " "${TEXT_RESET}${TEXT_GREEN}" " ${msg}" "${TEXT_RESET}"
 }
 
 get_latest_tag() {
