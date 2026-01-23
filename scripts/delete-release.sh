@@ -71,6 +71,7 @@ EOF
 check_release() {
   local release_version="${1}"
   if gh release view "${release_version}" >/dev/null 2>&1; then
+    verbose "Found release: ${release_version}"
     return 0
   else
     die "Cannot find release: ${release_version}"
@@ -79,10 +80,7 @@ check_release() {
 
 delete_release() {
   local release_version="${1}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Deleting release: ${release_version} ..."
-  fi
-
+  verbose "Deleting release: ${release_version} ..."
   if gh release delete "${release_version}" --yes --cleanup-tag; then
     success "Deleted release: ${release_version}"
   else

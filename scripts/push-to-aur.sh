@@ -92,13 +92,17 @@ update_pkgbuild() {
   # Regenerate .SRCINFO
   info "Updating .SRCINFO"
   if [[ -e "${aur_dir}/.SRCINFO" ]]; then
+    verbose "Removing .SRCINFO file: '${aur_dir}/.SRCINFO"
     rm -f "${aur_dir}/.SRCINFO"
   fi
+  verbose "Generating .SRCINFO file: '${aur_dir}/.SRCINFO"
   makepkg --printsrcinfo > "${aur_dir}/.SRCINFO"
 
   # Commit & push
+  verbose "Adding AUR files to git tracking"
   git add PKGBUILD .SRCINFO
   git commit -m "${commit_msg}" || info "No changes to commit"
+  verbose "Pushing files to remote ..."
   git push origin "${AUR_BRANCH}"
 
   success "Pushed version: '${package_name}'"

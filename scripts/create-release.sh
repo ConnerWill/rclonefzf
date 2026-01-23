@@ -67,9 +67,7 @@ EOF
 create_release() {
   local release_version="v${1}"
   local asset_path="${2}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Creating release: ${release_version} ..."
-  fi
+  verbose "Creating release: ${release_version} ..."
   if gh release create "${release_version}" --latest --generate-notes --fail-on-no-commits "${asset_path}"; then
     success "Created release: ${release_version}"
   else

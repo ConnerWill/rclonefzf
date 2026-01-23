@@ -2,11 +2,16 @@
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 #shellcheck disable=2155,2034,2154,2059
 
+
+# Change to false to disable verbose mode
+VERBOSE=true
+
 if [[ -z "${NO_COLOR}" ]]; then
   TEXT_RED='\x1B[0;38;5;196m'
   TEXT_YELLOW='\x1B[0;38;5;226m'
   TEXT_GREEN='\x1B[0;38;5;46m'
   TEXT_BLUE='\x1B[38;5;33m'
+  TEXT_MAGENTA='\x1B[38;5;201m'
   TEXT_BLACK='\x1B[38;5;0m'
   TEXT_WHITE='\x1B[38;5;15m'
   TEXT_BG_RED='\x1B[48;5;196m'
@@ -28,6 +33,14 @@ die() {
   printf '%b%s%b%s%b\n' "${TEXT_BG_RED}${TEXT_WHITE}${TEXT_BOLD}" "  ERROR  " "${TEXT_RESET}${TEXT_RED}" " ${msg}" "${TEXT_RESET}" >&2
 }
 
+verbose() {
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
+    printf '%b%s%b%s%b\n' "${TEXT_BG_MAGENTA}${TEXT_WHITE}${TEXT_BOLD}" " VERBOSE " "${TEXT_RESET}${TEXT_MAGENTA}" " ${msg}" "${TEXT_RESET}"
+  fi
+}
+
 info() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
@@ -43,7 +56,7 @@ success() {
 get_latest_tag() {
   if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
     printf "\n"
-    info "Finding latest git tag ..."
+    verbose "Finding latest git tag ..."
   fi
   git fetch --tags --quiet
   git describe --tags "$(git rev-list --tags --max-count=1)" | sed 's/^v//'
@@ -51,9 +64,7 @@ get_latest_tag() {
 
 checkout_branch() {
   local branch="${1}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Checking out branch: '${branch}'"
-  fi
+  verbose "Checking out branch: '${branch}'"
   if ! git checkout "${branch}" >/dev/null 2>&1; then
     die "Unable to checkout branch: ${branch}"
   fi
@@ -63,18 +74,14 @@ clone_repo() {
   local repo_dir="${1}"
   local repo_url="${2}"
   if [[ ! -d "${repo_dir}" ]]; then
-    if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-      info "Cloning repository ${repo_url} ..."
-    fi
+    verbose "Cloning repository ${repo_url} ..."
     git clone "${repo_url}" "${repo_dir}" || die "Failed to clone ${repo_url}"
   fi
 }
 
 check_uncommitted_files() {
   local git_status_output
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Searching for uncommitted changes ..."
-  fi
+  verbose "Searching for uncommitted changes ..."
   git_status_output="$(git status --porcelain)"
   if [[ -n "${git_status_output}" ]]; then
     info "Files not committed:"
@@ -91,20 +98,20 @@ commit_files() {
   local commit_msg="${1}"
   if git add --all --verbose; then
     if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && info "Added files ..."
+    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && verbose "Added files ..."
     fi
   else
     die "Unable to add files to commit"
   fi
 
   if git commit --message="${commit_msg}" --verbose; then
-    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && info "Committed files ..."
+    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && verbose "Committed files ..."
   else
     die "Unable to commit files"
   fi
 
   if git push --verbose; then
-    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && info "pushing files ..."
+    [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]] && verbose "pushing files ..."
   else
     die "Unable to push"
   fi
@@ -113,12 +120,10 @@ commit_files() {
 is_installed() {
   local input_program="${1}"
   if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Checking if '${input_program}' is installed ..."
+    verbose "Checking if '${input_program}' is installed ..."
   fi
   if command -v "${input_program}" >/dev/null 2>&1; then
-    if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-      info "'${input_program}' is installed ..."
-    fi
+    verbose "'${input_program}' is installed ..."
   else
     die "Could not find '${input_program}' in PATH. Make sure it is installed and is in your PATH"
   fi
@@ -126,9 +131,7 @@ is_installed() {
 
 validate_version() {
   local version="${1}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Validating version formatting ..."
-  fi
+  verbose "Validating version formatting ..."
   if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     die "invalid version format: '${version}' (expected x.x.x)"
   fi
@@ -137,9 +140,7 @@ validate_version() {
 compare_versions() {
   local current_version="${1}"
   local new_version="${2}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Comparing version values ..."
-  fi
+  verbose "Comparing version values ..."
   if [[ "${current_version}" == "${new_version}" ]]; then
     die "New version is the same as current version (${current_version})"
   fi
@@ -151,9 +152,7 @@ check_version_updated() {
   local matches
   matches="$(git grep --no-color --ignore-case --name-only --fixed-strings "${current_version}" || true)"
   if [[ -z "${matches}" ]]; then
-    if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-      success "No occurrences of current version: '${current_version}' found"
-    fi
+    success "No occurrences of current version: '${current_version}' found"
   else
     info "Found occurrences of current version '${current_version}' in the following files:\n"
     printf "%s\n" "${matches}"
@@ -163,8 +162,6 @@ check_version_updated() {
 
 cd_directory() {
   local directory="${1}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    info "Moving to directory: '${directory}' ..."
-  fi
+  verbose "Moving to directory: '${directory}' ..."
   cd "${directory}" || die "Cannot move to directory: '${directory}'"
 }

@@ -97,6 +97,7 @@ printf '\n'
 
 # Perform in-place replacement
 for file in "${VERSION_FILES[@]}"; do
+  verbose "Performing in-place replacement in file: '${file}'. ${CURRENT_VERSION} -> ${NEW_VERSION}"
   sed -i -E -e "s/(v?)${CURRENT_VERSION}/\1${NEW_VERSION}/g" "${file}"
 done
 
