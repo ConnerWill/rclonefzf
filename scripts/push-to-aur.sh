@@ -15,7 +15,7 @@ readonly SCRIPT_DESCRIPTION="Push rclonefzf PKGBUILD(s) to the AUR (stable and g
 #######################################
 # Configuration
 #######################################
-readonly VERBOSE=${VERBOSE:-true}
+VERBOSE=${VERBOSE:-true}
 readonly BRANCH="main"
 readonly AUR_BRANCH="master"
 readonly AUR_STABLE_DIR="${REPO_ROOT}/AUR/rclonefzf/rclonefzf"
