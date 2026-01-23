@@ -10,7 +10,7 @@ IFS=$'\n\t'
 #######################################
 readonly SCRIPT_NAME="${0##*/}"
 readonly SCRIPT_DESCRIPTION="Interactive terminal UI for browsing and viewing files on rclone remotes using fzf"
-readonly VERSION="1.0.10"
+readonly VERSION="1.0.11"
 
 #######################################
 # Config locations (precedence order)
