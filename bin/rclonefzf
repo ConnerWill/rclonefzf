@@ -553,6 +553,7 @@ file_viewer() {
               echo \"  ✗ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\"
             done)+abort"                 \
         --multi                          \
+        --query "${SEARCH_QUERY:-}"      \
         --prompt "${file_viewer_prompt}" \
         --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
   [[ -z "${selection}" ]] && verbose "No files selected." && return
