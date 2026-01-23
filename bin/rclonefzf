@@ -501,8 +501,15 @@ file_viewer() {
   rclone_remote="${1}"
   file_viewer_prompt="Remote: '${rclone_remote}': "
 
+  # --bind="ctrl-s:execute(echo $(copy_file ${rclone_remote} {+}))"
   #shellcheck disable=2145
-  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --bind="ctrl-s:execute(echo $(copy_file ${rclone_remote} {+}))" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
+  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --bind "ctrl-s:execute(
+          printf '%s\n' {+} |
+          while IFS= read -r file; do
+            echo rclone copy \"${rclone_remote}:\${file}\" \"${RCLONEFZF_DOWNLOADS_DIR}/\" $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+              echo '✓ \${file}' || echo '✗ \${file}'
+          done
+        )+abort" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
   [[ -z "${selection}" ]] && verbose "No files selected." && return
 
   mapfile -t selection_arr <<< "${selection}"
