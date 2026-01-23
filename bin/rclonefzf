@@ -549,7 +549,7 @@ file_viewer() {
         --bind "ctrl-s:execute(
             printf '%s\n' {+} |
             while IFS= read -r file; do
-              echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}/\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+              echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
               echo \"  ✓ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\" ||
               echo \"  ✗ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\"
             done)+abort"                 \
@@ -568,7 +568,7 @@ file_viewer() {
       --bind "ctrl-s:execute(
           printf '%s\n' {+} |
           while IFS= read -r file; do
-            echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}/\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+            echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
               echo \"  ✓ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\" ||
               echo \"  ✗ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\"
           done)+abort"                                  \
