@@ -26,8 +26,9 @@ Run docker image from root of the repo
 
 ```bash
 cd $(git rev-parse --show-toplevel)
-docker run --rm --interactive --tty \
-  --volume "${PWD}:/workspace"      \
+docker run --rm --interactive --tty                                                 \
+  --volume "${PWD}:/workspace"                                                      \
+  --volume "${XDG_CONFIG_HOME:-${HOME}/.config}/rclone:/home/dev/.config/rclone:ro" \
   rclonefzf
 ```
 
@@ -41,8 +42,9 @@ rclonefzf
 
 ```bash
 cd $(git rev-parse --show-toplevel)
-docker run --rm --interactive --tty \
-  --volume "${PWD}:/workspace"      \
+docker run --rm --interactive --tty                                                 \
+  --volume "${PWD}:/workspace"                                                      \
+  --volume "${XDG_CONFIG_HOME:-${HOME}/.config}/rclone:/home/dev/.config/rclone:ro" \
   rclonefzf rclonefzf
 ```
 
@@ -52,7 +54,8 @@ Test building package with `PKGBUILD` inside the container:
 
 ```bash
 cd $(git rev-parse --show-toplevel)
-docker run --rm --interactive --tty \
-  --volume "${PWD}:/workspace"      \
+docker run --rm --interactive --tty                                                 \
+  --volume "${PWD}:/workspace"                                                      \
+  --volume "${XDG_CONFIG_HOME:-${HOME}/.config}/rclone:/home/dev/.config/rclone:ro" \
   rclonefzf 'cd AUR/rclonefzf ; makepkg -si'
 ```
