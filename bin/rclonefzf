@@ -30,11 +30,11 @@ PREVIEW_WINDOW="right:60%:wrap"
 LAYOUT="reverse"
 BORDER="rounded"
 ENABLE_PREVIEW=true
-VERBOSE=false
+VERBOSE=true
 CTRL_C_CLOSE=true
 RCLONEFZF_PAGER="${PAGER:-less}"
 RCLONE_MAX_DEPTH=10
-RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/downloads/rclonefzf}"
+# RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-}"
 
 #######################################
 # Built-in themes
@@ -379,6 +379,41 @@ show_example_config() {
   printf '#\t%s\n' "${CONFIG_PATHS[@]}"
 }
 
+# Ensure download directory exists and is usable
+ensure_download_dir() {
+  local dir_to_use
+
+  if [[ -z "${RCLONEFZF_DOWNLOADS_DIR:-}" ]]; then
+    # Not set → fallback to current directory
+    dir_to_use="${PWD}"
+    verbose "RCLONEFZF_DOWNLOADS_DIR not set → using current directory: ${dir_to_use}"
+  else
+    dir_to_use="${RCLONEFZF_DOWNLOADS_DIR}"
+
+    # Try to create it if it doesn't exist
+    if [[ ! -d "${dir_to_use}" ]]; then
+      if mkdir -p "${dir_to_use}" 2>/dev/null; then
+        success "Created download directory: ${dir_to_use}"
+      else
+        warn "Cannot create directory '${dir_to_use}' (permission denied?) → falling back to ${PWD}"
+        dir_to_use="${PWD}"
+      fi
+    fi
+
+    # Final writability check
+    if [[ ! -w "${dir_to_use}" ]]; then
+      warn "Directory '${dir_to_use}' is not writable → falling back to ${PWD}"
+      dir_to_use="${PWD}"
+    fi
+  fi
+
+  # Export the final value so the rest of the script uses it
+  RCLONEFZF_DOWNLOADS_DIR="${dir_to_use}"
+  export RCLONEFZF_DOWNLOADS_DIR
+
+  verbose "Final download directory: ${RCLONEFZF_DOWNLOADS_DIR}"
+}
+
 #######################################
 # Command line argument parsing
 #######################################
@@ -404,6 +439,7 @@ load_config
 resolve_theme
 require_cmd "rclone"
 require_cmd "fzf"
+ensure_download_dir
 
 if [[ "${CONFIG_INIT}" == true ]]; then
   install_example_config
@@ -507,7 +543,7 @@ file_viewer() {
           printf '%s\n' {+} |
           while IFS= read -r file; do
             echo rclone copy \"${rclone_remote}:\${file}\" \"${RCLONEFZF_DOWNLOADS_DIR}/\" $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
-              echo '✓ \${file}' || echo '✗ \${file}'
+              echo \"✓ \${file}\" || echo \"✗ \${file}\"
           done
         )+abort" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
   [[ -z "${selection}" ]] && verbose "No files selected." && return
