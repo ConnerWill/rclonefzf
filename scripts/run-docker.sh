@@ -48,6 +48,10 @@ is_installed "docker"
 
 cd_directory "${REPO_ROOT}"
 bash "${SCRIPT_DIR}/build-dockerfile.sh"
+dir_exists "${RCLONE_CONFIG_DIR}"
+if ! file_exists "${RCLONE_CONFIG_DIR}/rclone.conf"; then
+  die "Cannot find rclone config file. Please configure rclone remotes on the host system with the command: 'rclone config'"
+fi
 docker_run
 
 success "All done!"

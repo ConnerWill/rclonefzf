@@ -120,13 +120,31 @@ commit_files() {
 
 is_installed() {
   local input_program="${1}"
-  if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    verbose "Checking if '${input_program}' is installed ..."
-  fi
+  verbose "Checking if '${input_program}' is installed ..."
   if command -v "${input_program}" >/dev/null 2>&1; then
     verbose "'${input_program}' is installed ..."
   else
     die "Could not find '${input_program}' in PATH. Make sure it is installed and is in your PATH"
+  fi
+}
+
+file_exists() {
+  local input_file="${1}"
+  verbose "Checking if file exists: '${input_file}'"
+  if [[ -e "${input_file}" ]]; then
+    verbose "Found file: '${input_file}'"
+  else
+    info "Cannot find file: '${input_file}'"
+  fi
+}
+
+dir_exists() {
+  local input_dir="${1}"
+  verbose "Checking if directory exists: '${input_dir}'"
+  if [[ -d "${input_dir}" ]]; then
+    verbose "Found directory: '${input_dir}'"
+  else
+     info "Cannot find directory: '${input_dir}'"
   fi
 }
 
