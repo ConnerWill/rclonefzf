@@ -2,17 +2,42 @@
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 #shellcheck disable=2155,2034,2154,2059
 
+if [[ -z "${NO_COLOR}" ]]; then
+  TEXT_RED='\x1B[0;38;5;196m'
+  TEXT_YELLOW='\x1B[0;38;5;226m'
+  TEXT_GREEN='\x1B[0;38;5;46m'
+  TEXT_BLUE='\x1B[38;5;33m'
+  TEXT_BLACK='\x1B[38;5;0m'
+  TEXT_WHITE='\x1B[38;5;15m'
+  TEXT_BG_RED='\x1B[48;5;196m'
+  TEXT_BG_GREEN='\x1B[48;5;46m'
+  TEXT_BG_YELLOW='\x1B[48;5;190m'
+  TEXT_BG_BLUE='\x1B[48;5;33m'
+  TEXT_BG_PURPLE='\x1B[48;5;93m'
+  TEXT_BG_MAGENTA='\x1B[48;5;201m'
+  TEXT_BG_CYAN='\x1B[48;5;87m'
+  TEXT_BOLD='\x1B[1m'
+  TEXT_UNDERLINE='\x1B[4m'
+  TEXT_ITALIC='\x1B[3m'
+  TEXT_RESET='\x1B[0m'
+fi
+
 die() {
-  printf "${TEXT_RED}${TEXT_BOLD}ERROR:${TEXT_RESET} ${TEXT_YELLOW}%s${TEXT_RESET}\n" "${1}" >&2
-  exit 1
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  printf '%b%s%b%s%b\n' "${TEXT_BG_RED}${TEXT_WHITE}${TEXT_BOLD}" "  ERROR  " "${TEXT_RESET}${TEXT_RED}" " ${msg}" "${TEXT_RESET}" >&2
 }
 
 info() {
-  printf "${TEXT_YELLOW}%s${TEXT_RESET}\n" "${1}"
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  printf '%b%s%b%s%b\n' "${TEXT_BG_BLUE}${TEXT_WHITE}${TEXT_BOLD}" "   INFO  " "${TEXT_RESET}${TEXT_BLUE}" " ${msg}" "${TEXT_RESET}"
 }
 
 success() {
-  printf "${TEXT_GREEN}%s${TEXT_RESET}\n\n" "${1}"
+  local msg="${1:-}"
+  [[ -z "${msg}" ]] && return
+  printf '%b%s%b%s%b\n' "${TEXT_BG_BLUE}${TEXT_WHITE}${TEXT_BOLD}" " SUCCESS " "${TEXT_RESET}${TEXT_BLUE}" " ${msg}" "${TEXT_RESET}"
 }
 
 get_latest_tag() {
