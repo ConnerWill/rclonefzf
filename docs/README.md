@@ -147,6 +147,7 @@ rclonefzf "query"
 | <kbd>Shift</kbd>+<kbd>TAB</kbd> | Unselect item |
 | <kbd>CTRL</kbd>+<kbd>a</kbd> | Select all items |
 | <kbd>CTRL</kbd>+<kbd>d</kbd> | Deselect all items |
+| <kbd>CTRL</kbd>+<kbd>s</kbd> | Download selection |
 | <kbd>CTRL</kbd>+<kbd>l</kbd> | Clear search query |
 | <kbd>CTRL</kbd>+<kbd>Backspace</kbd> | Clear search query |
 | <kbd>CTRL</kbd>+<kbd>/</kbd> | Change layout |
@@ -176,6 +177,7 @@ rclonefzf looks for configuration files in this order (uses the first file found
 - `VERBOSE` — Enable verbose logging *(true or false)*
 - `RCLONEFZF_PAGER` — Pager for help/config/keybindings *(less, bat, etc.)*
 - `RCLONE_MAX_DEPTH` — Max depth for directory browsing
+- `RCLONEFZF_DOWNLOADS_DIR` - Download directory (`~/downloads/rclonefzf`, `${PWD}`)
 
 ## See Also
 

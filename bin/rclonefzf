@@ -30,10 +30,11 @@ PREVIEW_WINDOW="right:60%:wrap"
 LAYOUT="reverse"
 BORDER="rounded"
 ENABLE_PREVIEW=true
-VERBOSE=false
+VERBOSE=true
 CTRL_C_CLOSE=true
 RCLONEFZF_PAGER="${PAGER:-less}"
 RCLONE_MAX_DEPTH=10
+# RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-}"
 
 #######################################
 # Built-in themes
@@ -275,6 +276,7 @@ KEYBINDINGS:
   TAB / Shift-TAB           Select / Unselect
   CTRL-a                    Select all
   CTRL-d                    Deselect all
+  CTRL-s                    Download selection
   CTRL-l                    Clear query
   CTRL-Backspace            Clear query
   CTRL-/                    Change layout
@@ -346,6 +348,9 @@ CTRL_C_CLOSE=true
 # rclone max depth, how deep to view down tree
 RCLONE_MAX_DEPTH=10
 
+# Directory to save downloaded files to
+RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/rclonefzf}"
+
 #vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
 EOF
 }
@@ -374,6 +379,41 @@ show_example_config() {
   printf '#\t%s\n' "${CONFIG_PATHS[@]}"
 }
 
+# Ensure download directory exists and is usable
+ensure_download_dir() {
+  local dir_to_use
+
+  if [[ -z "${RCLONEFZF_DOWNLOADS_DIR:-}" ]]; then
+    # Not set → fallback to current directory
+    dir_to_use="${PWD}"
+    verbose "RCLONEFZF_DOWNLOADS_DIR not set → using current directory: ${dir_to_use}"
+  else
+    dir_to_use="${RCLONEFZF_DOWNLOADS_DIR}"
+
+    # Try to create it if it doesn't exist
+    if [[ ! -d "${dir_to_use}" ]]; then
+      if mkdir -p "${dir_to_use}" 2>/dev/null; then
+        success "Created download directory: ${dir_to_use}"
+      else
+        warn "Cannot create directory '${dir_to_use}' (permission denied?) → falling back to ${PWD}"
+        dir_to_use="${PWD}"
+      fi
+    fi
+
+    # Final writability check
+    if [[ ! -w "${dir_to_use}" ]]; then
+      warn "Directory '${dir_to_use}' is not writable → falling back to ${PWD}"
+      dir_to_use="${PWD}"
+    fi
+  fi
+
+  # Export the final value so the rest of the script uses it
+  RCLONEFZF_DOWNLOADS_DIR="${dir_to_use%/}/"
+  export RCLONEFZF_DOWNLOADS_DIR
+
+  verbose "Final download directory: ${RCLONEFZF_DOWNLOADS_DIR}"
+}
+
 #######################################
 # Command line argument parsing
 #######################################
@@ -399,6 +439,7 @@ load_config
 resolve_theme
 require_cmd "rclone"
 require_cmd "fzf"
+ensure_download_dir
 
 if [[ "${CONFIG_INIT}" == true ]]; then
   install_example_config
@@ -431,6 +472,8 @@ FZF_BIND_OPTIONS=(
   --bind='ctrl-v:toggle-preview'
   --bind='ctrl-w:abort'
 )
+
+  # --bind="ctrl-s:execute(echo rclone copy '${rclone_remote}:{r}' '${RCLONEFZF_DOWNLOADS_DIR}' '${RCLONE_COPY_OPTIONS[@]}')+abort"
 readonly FZF_BIND_OPTIONS
 
 #######################################
@@ -447,8 +490,15 @@ RCLONE_CAT_OPTIONS=(
   --max-depth="${RCLONE_MAX_DEPTH}"
 )
 
+RCLONE_COPY_OPTIONS=(
+  --check-first
+  --metadata
+  --progress
+)
+
 readonly RCLONE_LSF_OPTIONS
 readonly RCLONE_CAT_OPTIONS
+readonly RCLONE_COPY_OPTIONS
 
 #######################################
 # Core actions
@@ -487,13 +537,52 @@ file_viewer() {
   rclone_remote="${1}"
   file_viewer_prompt="Remote: '${rclone_remote}': "
 
+  # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
+  # TODO: Fix quoting hell
   #shellcheck disable=2145
-  selection=$(rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt}" --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
+  selection=$(
+    rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null |
+      fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
+        --bind "ctrl-s:execute(
+            printf '%s\n' {+} |
+            while IFS= read -r file; do
+              echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}/\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+              echo \"  ✓ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\" ||
+              echo \"  ✗ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\"
+            done)+abort"                 \
+        --multi                          \
+        --prompt "${file_viewer_prompt}" \
+        --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
   [[ -z "${selection}" ]] && verbose "No files selected." && return
 
   mapfile -t selection_arr <<< "${selection}"
+  # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
+  # TODO: Fix quoting hell
   #shellcheck disable=2145
-  printf '%s\n' "${selection_arr[@]}" | fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" --multi --prompt "${file_viewer_prompt} Selected Files: " --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true
+  printf '%s\n' "${selection_arr[@]}" |
+    fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
+      --bind "ctrl-s:execute(
+          printf '%s\n' {+} |
+          while IFS= read -r file; do
+            echo rclone copy \'\"${rclone_remote}:\${file}\"\' \'\"${RCLONEFZF_DOWNLOADS_DIR}/\"\' $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
+              echo \"  ✓ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\" ||
+              echo \"  ✗ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\"
+          done)+abort"                                  \
+      --multi                                           \
+      --prompt "${file_viewer_prompt} Selected Files: " \
+      --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true
+}
+
+# TODO: Remove this function. not used.
+# --bind="ctrl-s:execute(echo $(copy_file ${rclone_remote} {+}))"
+copy_file() {
+  local rclone_remote rclone_files local_dest
+  rclone_remote="${1}"
+  shift
+  # rclone_files="${@}"
+  for file in "${@}"; do
+    echo rclone copy "${rclone_remote}:${file}" "${RCLONEFZF_DOWNLOADS_DIR}/" "${RCLONE_COPY_OPTIONS[@]}"
+  done
 }
 
 #######################################
@@ -539,6 +628,7 @@ main() {
         ;;
       *)
         RCLONE_REMOTE="${choice}"
+        export RCLONE_REMOTE
         file_viewer "${RCLONE_REMOTE}"
         ;;
     esac
