@@ -4,6 +4,8 @@ FROM archlinux:latest
 # Prevent pacman from prompting
 ENV PACMAN_NOCONFIRM=1
 
+ENV PAGER=bat
+
 # Update base system and install deps
 RUN pacman -Syu --noconfirm --needed \
     base-devel \
@@ -11,6 +13,8 @@ RUN pacman -Syu --noconfirm --needed \
     sudo       \
     fzf        \
     rclone     \
+    bat        \
+    less       \
     bash       \
     && pacman -Scc --noconfirm
 
