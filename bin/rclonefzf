@@ -276,7 +276,7 @@ KEYBINDINGS:
   TAB / Shift-TAB           Select / Unselect
   CTRL-a                    Select all
   CTRL-d                    Deselect all
-  CTRL-s                    Save selection
+  CTRL-s                    Download selection
   CTRL-l                    Clear query
   CTRL-Backspace            Clear query
   CTRL-/                    Change layout
@@ -538,6 +538,7 @@ file_viewer() {
   file_viewer_prompt="Remote: '${rclone_remote}': "
 
   # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
+  # TODO: Fix quoting hell
   #shellcheck disable=2145
   selection=$(
     rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null |
@@ -556,6 +557,7 @@ file_viewer() {
 
   mapfile -t selection_arr <<< "${selection}"
   # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
+  # TODO: Fix quoting hell
   #shellcheck disable=2145
   printf '%s\n' "${selection_arr[@]}" |
     fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
