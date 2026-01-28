@@ -39,7 +39,6 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
 - [Description](#description)
 - [Table of Contents](#table-of-contents)
 - [Screenshots](#screenshots)
-- [rclonefzf](#rclonefzf)
   - [Features](#features)
   - [Requirements](#requirements)
   - [Installation](#installation)
@@ -192,6 +191,7 @@ rclonefzf looks for configuration files in this order (uses the first file found
 
 - [rclone][rclone-url]
 - [fzf][fzf-url]
+- [yayfzf][yayfzf-url]
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -270,5 +270,7 @@ git push origin AmazingNewFeature
 [wiki-screenshots-url]: https://github.com/ConnerWill/rclonefzf/wiki/Screenshots
 
 [fzf-url]: https://github.com/junegunn/fzf
+[yayfzf-url]: https://github.com/ConnerWill/yayfzf
+[rclonefzf-url]: https://github.com/ConnerWill/rclonefzf
 [rclone-url]: https://rclone.org
 [rclonefzf-source]: https://github.com/ConnerWill/rclonefzf/blob/main/bin/rclonefzf
