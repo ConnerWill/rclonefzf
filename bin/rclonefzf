@@ -271,22 +271,22 @@ ${C_BLUE}${C_BOLD}OPTIONS${C_RESET}
 
   ${C_YELLOW}-k${C_RESET}, ${C_YELLOW}--keybindings${C_RESET}
       ${C_WHITE}Show keybindings${C_RESET}
-  
+
   ${C_YELLOW}-i${C_RESET}, ${C_YELLOW}--init-config${C_RESET}
       ${C_WHITE}Install example configuration file${C_RESET}
-  
+
   ${C_YELLOW}-s${C_RESET}, ${C_YELLOW}--show-config${C_RESET}
       ${C_WHITE}Show example configuration file content${C_RESET}
-  
+
   ${C_YELLOW}-v${C_RESET}, ${C_YELLOW}--verbose${C_RESET}
       ${C_WHITE}Show verbose output${C_RESET}
-  
+
   ${C_YELLOW}-h${C_RESET}
       ${C_WHITE}Show help${C_RESET}
-  
+
   ${C_YELLOW}--help${C_RESET}
       ${C_WHITE}Show full help${C_RESET}
-  
+
   ${C_YELLOW}-V${C_RESET}, ${C_YELLOW}--version${C_RESET}
       ${C_WHITE}Show version${C_RESET}
 
