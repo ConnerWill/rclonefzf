@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
-#shellcheck disable=2016,2034,2154,2249,2310,2312
+#shellcheck disable=2016,2034,2059,2154,2249,2310,2312
 
 set -Eeo pipefail
 IFS=$'\n\t'
@@ -238,6 +238,7 @@ draw_line() {
   COLS="$(tput cols)"
   (( COLS <= 0 )) && COLS="${COLUMNS:-80}"
   for WORD in "${@:-─}"; do
+    #shellcheck disable=SC2183
     printf -v LINE '%*s' "${COLS}"
     LINE="${LINE// /${WORD}}"
     echo "${LINE:0:${COLS}}"
@@ -602,7 +603,10 @@ if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
 fi
 readonly FZF_OPTS
 
+
+# shellcheck disable=SC2089
 FZF_BIND_COPY='ctrl-s:execute(bash -c "rclonefzf_copy_selected" <<< "{+}")+abort'
+# shellcheck disable=SC2090
 export FZF_BIND_COPY
 
 FZF_BIND_OPTIONS=(
