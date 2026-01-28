@@ -4,9 +4,9 @@ _rclonefzf() {
   local -a opts main_actions
 
   main_actions=(
-    'Install packages:Search and install packages (AUR + repos)'
-    'Remove packages:Search installed packages and remove them'
-    'Update system:Update the whole system (yay -Syu)'
+    'Browse rclone remotes:Browse files in rclone remotes using rclone'
+    'View files:View file contents of files on rclone remote'
+    'Download files:Download files from rclone remote to configured directory or to PWD'
     'Install config:Install example config file'
     'Show config:Show example config content'
     'Help:Show help / keybindings'
@@ -19,6 +19,7 @@ _rclonefzf() {
     '--init-config[Install example configuration file]'
     '--show-config[Show example configuration file content]'
     '(-V --version)'{-V,--version}'[Show version]'
+    '(-v --verbose)'{-v,--verbose}'[Show verbose output]'
   )
 
   # No positional arguments anymore → only options or nothing
