@@ -287,6 +287,9 @@ ${C_BLUE}${C_BOLD}OPTIONS${C_RESET}
   ${C_YELLOW}--help${C_RESET}
       ${C_WHITE}Show full help${C_RESET}
 
+  ${C_YELLOW}--help-man${C_RESET}
+      ${C_WHITE}Show man page${C_RESET}
+
   ${C_YELLOW}-V${C_RESET}, ${C_YELLOW}--version${C_RESET}
       ${C_WHITE}Show version${C_RESET}
 
@@ -391,6 +394,11 @@ show_version() {
 
 show_author() {
   printf '%b%s%b %b%s%b\n' "${C_GREEN}" "${SCRIPT_AUTHOR}" "${C_RESET}" "${C_YELLOW}" "${SCRIPT_AUTHOR_URL}" "${C_RESET}"
+}
+
+show_help_man() {
+  require_cmd man
+  man "${SCRIPT_NAME}"
 }
 
 show_help_full() {
@@ -562,7 +570,8 @@ while [[ $# -gt 0 ]]; do
     -s|--show-c*) show_config_file_contents;                  exit 0 ;;
     -v|--verb*)   export VERBOSE=true;                        shift  ;;
     -h)           show_help;                                  exit 0 ;;
-    --he*)        show_help_full;                             exit 0 ;;
+    --help)       show_help_full;                             exit 0 ;;
+    --help-man)   show_help_man;                              exit 0 ;;
     -V|--vers*)   show_version;                               exit 0 ;;
     -*)           die "Unknown option: '${1}'. See help for options" ;;
     *)            SEARCH_QUERY+="${SEARCH_QUERY:+ }${1}";     shift  ;;
