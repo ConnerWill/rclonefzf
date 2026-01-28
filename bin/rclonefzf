@@ -214,13 +214,15 @@ success() {
 export -f success
 
 require_cmd() {
-  local input=${1}
-  verbose "Checking dependency: ${input} ..."
-  if command -v "${input}" >/dev/null 2>&1; then
-    verbose "Found '${input}' in PATH ..."
-  else
-    die "Could not find '${input}' in PATH. Make sure it is installed and is in your PATH"
-  fi
+  local cmd
+  for cmd in "${@}"; do
+    verbose "Checking dependency: ${cmd} ..."
+    if command -v "${cmd}" >/dev/null 2>&1; then
+      verbose "Found '${cmd}' in PATH ..."
+    else
+      die "Could not find '${cmd}' in PATH. Make sure it is installed and is in your PATH"
+    fi
+  done
 }
 
 confirm() {
@@ -481,7 +483,7 @@ ensure_download_dir() {
   if [[ -z "${RCLONEFZF_DOWNLOADS_DIR:-}" ]]; then
     # Not set → fallback to current directory
     dir_to_use="${PWD}"
-    verbose "RCLONEFZF_DOWNLOADS_DIR not set → using current directory: ${dir_to_use}"
+    verbose "'RCLONEFZF_DOWNLOADS_DIR' not set, using current directory: '${dir_to_use}'"
   else
     dir_to_use="${RCLONEFZF_DOWNLOADS_DIR}"
 
@@ -490,14 +492,14 @@ ensure_download_dir() {
       if mkdir -p "${dir_to_use}" 2>/dev/null; then
         success "Created download directory: ${dir_to_use}"
       else
-        warn "Cannot create directory '${dir_to_use}' (permission denied?) → falling back to ${PWD}"
+        warn "Cannot create directory '${dir_to_use}' (permission denied?), Falling back to ${PWD}"
         dir_to_use="${PWD}"
       fi
     fi
 
     # Final writability check
     if [[ ! -w "${dir_to_use}" ]]; then
-      warn "Directory '${dir_to_use}' is not writable → falling back to ${PWD}"
+      warn "Directory '${dir_to_use}' is not writable, falling back to ${PWD}"
       dir_to_use="${PWD}"
     fi
   fi
@@ -506,7 +508,7 @@ ensure_download_dir() {
   RCLONEFZF_DOWNLOADS_DIR="${dir_to_use%/}/"
   export RCLONEFZF_DOWNLOADS_DIR
 
-  verbose "Final download directory: ${RCLONEFZF_DOWNLOADS_DIR}"
+  verbose "Final download directory: '${RCLONEFZF_DOWNLOADS_DIR}'"
 }
 
 rclonefzf_copy_selected() {
@@ -563,17 +565,17 @@ while [[ $# -gt 0 ]]; do
     --he*)        show_help_full;                             exit 0 ;;
     -V|--vers*)   show_version;                               exit 0 ;;
     -*)           die "Unknown option: '${1}'. See help for options" ;;
-    *)            SEARCH_QUERY="${1}";                        shift  ;;
+    *)            SEARCH_QUERY+="${SEARCH_QUERY:+ }${1}";     shift  ;;
   esac
 done
 
 #######################################
 # Init
 #######################################
+declare -a RCLONE_REMOTES=()
 load_config
 resolve_theme
-require_cmd "rclone"
-require_cmd "fzf"
+require_cmd rclone fzf
 ensure_download_dir
 
 if [[ "${CONFIG_INIT}" == true ]]; then
@@ -653,6 +655,7 @@ readonly RCLONE_COPY_OPTIONS
 # Core actions
 #######################################
 
+# Populates global RCLONE_REMOTES array
 list_remotes() {
   # Return if RCLONE_REMOTES already has entries
   (( ${#RCLONE_REMOTES[@]} > 0 )) && return 0
