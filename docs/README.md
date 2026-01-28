@@ -145,6 +145,10 @@ rclonefzf "query"
 |-----|--------|
 | <kbd>↑</kbd> | Move up |
 | <kbd>↓</kbd> | Move down |
+| <kbd>PGUP</kbd> | Move up one page |
+| <kbd>PGDN</kbd> | Move down one page |
+| <kbd>HOME</kbd> | Move to first |
+| <kbd>END</kbd> | Move to last |
 | <kbd>ENTER</kbd> | Perform action on selection |
 | <kbd>TAB</kbd> | Select item |
 | <kbd>Shift</kbd>+<kbd>TAB</kbd> | Unselect item |

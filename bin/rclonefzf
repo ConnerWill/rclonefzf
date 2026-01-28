@@ -226,6 +226,18 @@ confirm() {
   [[ "${response}" =~ ^[Yy]$ ]]
 }
 
+draw_line() {
+  local WORD LINE
+  LINE=''
+  COLS="$(tput cols)"
+  (( COLS <= 0 )) && COLS="${COLUMNS:-80}"
+  for WORD in "${@:-─}"; do
+    printf -v LINE '%*s' "${COLS}"
+    LINE="${LINE// /${WORD}}"
+    echo "${LINE:0:${COLS}}"
+  done
+}
+
 #######################################
 # Help / version
 #######################################
@@ -267,20 +279,42 @@ show_keybindings() {
   cat <<'EOF'
 KEYBINDINGS:
 
-  ↑/↓                   - Move up/down
-  ENTER                 - Perform action on selection
-  TAB / Shift-TAB       - Select / Unselect
-  CTRL-a                - Select all
-  CTRL-d                - Deselect all
-  CTRL-s                - Download selection
-  CTRL-l                - Clear query
-  CTRL-Backspace        - Clear query
-  CTRL-/                - Change layout
-  CTRL-v                - Toggle preview
-  ?                     - Show keybindings
-  CTRL-c                - Exit
-  CTRL-w                - Exit
-  ESC                   - Exit
+  NAVIGATION:
+
+    ↑/↓                   - Move up/down
+    PGUP                  - Move up one page
+    PGDN                  - Move down one page
+    HOME                  - Move to first
+    END                   - Move to last
+
+  SELECT:
+
+    TAB / Shift-TAB       - Select / Unselect
+    CTRL-a                - Select all
+    CTRL-d                - Deselect all
+
+  ACTIONS:
+
+    ENTER                 - Perform action on selection
+    CTRL-s                - Download selection
+
+
+  QUERY:
+
+    CTRL-l                - Clear query
+    CTRL-Backspace        - Clear query
+
+  LAYOUT:
+
+    CTRL-/                - Change layout
+    CTRL-v                - Toggle preview
+    ?                     - Show keybindings
+
+  EXIT:
+
+    CTRL-c                - Exit
+    CTRL-w                - Exit
+    ESC                   - Exit
 
 
 EOF
@@ -301,10 +335,12 @@ show_version() {
 }
 
 show_help_full() {
+  draw_line
   show_help
   show_keybindings
   show_config_file_paths
   show_version
+  draw_line
 }
 
 #######################################
@@ -495,6 +531,10 @@ FZF_OPTS=(
   --bind='esc:abort'
   --header='Press ? for keybindings'
   --bind="?:preview(echo '$(show_keybindings)')"
+  --bind='home:first'
+  --bind='end:last'
+  --bind='pgup:page-up'
+  --bind='pgdn:page-down'
 )
 if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
   FZF_OPTS+=( --preview-window="${PREVIEW_WINDOW}" )
