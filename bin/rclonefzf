@@ -36,6 +36,7 @@ CTRL_C_CLOSE=${CTRL_C_CLOSE:-true}
 RCLONEFZF_PAGER="${PAGER:-less}"
 RCLONE_MAX_DEPTH=${RCLONE_MAX_DEPTH:-10}
 RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-}"
+NO_COLOR=${NO_COLOR:-false}
 
 #######################################
 # Built-in themes
@@ -105,34 +106,37 @@ header:#FF99FF
 #######################################
 # Text colors
 #######################################
-export C_RESET='\x1B[0m'
-export C_BOLD='\x1B[1m'
-export C_ITALIC='\x1B[3m'
-export C_UNDERLINE='\x1B[4m'
-export C_BLACK='\x1B[38;5;0m'
-export C_GRAY='\x1B[38;5;245m'
-export C_DARKGRAY='\x1B[38;5;8m'
-export C_WHITE='\x1B[38;5;15m'
-export C_RED='\x1B[38;5;196m'
-export C_GREEN='\x1B[38;5;46m'
-export C_YELLOW='\x1B[38;5;190m'
-export C_BLUE='\x1B[38;5;33m'
-export C_PURPLE='\x1B[38;5;93m'
-export C_MAGENTA='\x1B[38;5;201m'
-export C_CYAN='\x1B[38;5;87m'
-export C_BG_BLACK='\x1B[48;5;0m'
-export C_BG_GRAY='\x1B[48;5;245m'
-export C_BG_DARKGRAY='\x1B[48;5;8m'
-export C_BG_WHITE='\x1B[48;5;15m'
-export C_BG_RED='\x1B[48;5;196m'
-export C_BG_GREEN='\x1B[48;5;46m'
-export C_BG_YELLOW='\x1B[48;5;190m'
-export C_BG_BLUE='\x1B[48;5;33m'
-export C_BG_PURPLE='\x1B[48;5;93m'
-export C_BG_MAGENTA='\x1B[48;5;201m'
-export C_BG_CYAN='\x1B[48;5;87m'
-export C_SAVE_TITLE='\x1B[22;0t'
-export C_RESTORE_TITLE='\x1B[23;0t'
+
+if [[ -n "${NO_COLOR}" && "${NO_COLOR}" != true ]]; then
+  export C_RESET='\x1B[0m'
+  export C_BOLD='\x1B[1m'
+  export C_ITALIC='\x1B[3m'
+  export C_UNDERLINE='\x1B[4m'
+  export C_BLACK='\x1B[38;5;0m'
+  export C_GRAY='\x1B[38;5;245m'
+  export C_DARKGRAY='\x1B[38;5;8m'
+  export C_WHITE='\x1B[38;5;15m'
+  export C_RED='\x1B[38;5;196m'
+  export C_GREEN='\x1B[38;5;46m'
+  export C_YELLOW='\x1B[38;5;190m'
+  export C_BLUE='\x1B[38;5;33m'
+  export C_PURPLE='\x1B[38;5;93m'
+  export C_MAGENTA='\x1B[38;5;201m'
+  export C_CYAN='\x1B[38;5;87m'
+  export C_BG_BLACK='\x1B[48;5;0m'
+  export C_BG_GRAY='\x1B[48;5;245m'
+  export C_BG_DARKGRAY='\x1B[48;5;8m'
+  export C_BG_WHITE='\x1B[48;5;15m'
+  export C_BG_RED='\x1B[48;5;196m'
+  export C_BG_GREEN='\x1B[48;5;46m'
+  export C_BG_YELLOW='\x1B[48;5;190m'
+  export C_BG_BLUE='\x1B[48;5;33m'
+  export C_BG_PURPLE='\x1B[48;5;93m'
+  export C_BG_MAGENTA='\x1B[48;5;201m'
+  export C_BG_CYAN='\x1B[48;5;87m'
+  export C_SAVE_TITLE='\x1B[22;0t'
+  export C_RESTORE_TITLE='\x1B[23;0t'
+fi
 
 #######################################
 # Load config
@@ -436,6 +440,9 @@ RCLONE_MAX_DEPTH=${RCLONE_MAX_DEPTH:-10}
 
 # Directory to save downloaded files to (uncomment or leave blank to use '\${PWD}')
 RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/rclonefzf}"
+
+# Do not use color for output
+NO_COLOR=${NO_COLOR:-false}
 
 
 #vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
