@@ -448,7 +448,7 @@ RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/rclonefzf}
 NO_COLOR=${NO_COLOR:-false}
 
 
-#vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
+#vim:filetype=conf:shiftwidth=2:softtabstop=2:expandtab
 EOF
 }
 
