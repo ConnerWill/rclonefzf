@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
-#shellcheck disable=2016,2034,2059,2154,2249,2310,2312
+#shellcheck disable=2016,2034,2059,2120,2154,2249,2310,2312
 
 set -Eeo pipefail
 IFS=$'\n\t'
@@ -392,14 +392,14 @@ show_author() {
 }
 
 show_help_full() {
-  draw_line
+  draw_line "─"
   show_help
   show_examples
   show_keybindings
   show_config_file_paths
   show_version
   show_author
-  draw_line
+  draw_line "─"
 }
 
 #######################################
