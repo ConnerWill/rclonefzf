@@ -176,15 +176,16 @@ rclonefzf looks for configuration files in this order (uses the first file found
 
 ### Configuration Options
 
-- `THEME` — Color theme *(default, light, tokyo-night, neon)*
-- `PREVIEW_WINDOW` — fzf preview window layout and size
-- `ENABLE_PREVIEW` — Show preview window *(true or false)*
-- `LAYOUT` — fzf layout *(default or reverse)*
-- `BORDER` — fzf border style *(default or rounded)*
-- `VERBOSE` — Enable verbose logging *(true or false)*
-- `RCLONEFZF_PAGER` — Pager for help/config/keybindings *(less, bat, etc.)*
-- `RCLONE_MAX_DEPTH` — Max depth for directory browsing
-- `RCLONEFZF_DOWNLOADS_DIR` - Download directory (`~/downloads/rclonefzf`, `${PWD}`)
+- `THEME` — Color theme *[`string`]* *(`default`)* *(`default`, `light`, `tokyo-night`, `neon`)*
+- `PREVIEW_WINDOW` — fzf preview window layout and size *[`string`]* *(`right:60%:wrap`)*
+- `ENABLE_PREVIEW` — Show preview window *[`bool`]* *(`true`)*
+- `LAYOUT` — fzf layout *[`string`]* *(`reverse`)* *(`default`, `reverse`)*
+- `BORDER` — fzf border style *[`string`]* *(`rounded`)* *(`default`, `rounded`)*
+- `VERBOSE` — Enable verbose logging *[`bool`]* *(`false`)*
+- `RCLONEFZF_PAGER` — Pager *[`string`]* *(`less`)*
+- `RCLONE_MAX_DEPTH` — Max depth for directory browsing *[`integer`]* *(`10`)*
+- `RCLONEFZF_DOWNLOADS_DIR` - Download directory *[`string`]* *(`~/downloads/rclonefzf`)*
+- `NO_COLOR` - Do not use color for output *[`bool`]*
 
 ## See Also
 
