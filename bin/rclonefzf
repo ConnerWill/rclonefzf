@@ -9,6 +9,8 @@ IFS=$'\n\t'
 # Script metadata
 #######################################
 readonly SCRIPT_NAME="${0##*/}"
+readonly SCRIPT_AUTHOR="ConnerWill"
+readonly SCRIPT_AUTHOR_URL="https://github.com/ConnerWill"
 readonly SCRIPT_DESCRIPTION="Interactive terminal UI for browsing and viewing files on rclone remotes using fzf"
 readonly VERSION="1.0.15"
 
@@ -242,44 +244,88 @@ draw_line() {
 # Help / version
 #######################################
 show_help() {
-  cat <<EOF
-NAME:
+  printf "$(cat <<HELPMENU
+${C_BLUE}${C_BOLD}NAME${C_RESET}
 
-  ${SCRIPT_NAME}
-
-
-DESCRIPTION:
-
-  ${SCRIPT_DESCRIPTION}
+  ${C_GREEN}${SCRIPT_NAME}${C_RESET}
 
 
-USAGE:
+${C_BLUE}${C_BOLD}DESCRIPTION${C_RESET}
 
-  ${SCRIPT_NAME} [options] [search query]
-
-
-OPTIONS:
-
-  -k, --keybindings  Show keybindings
-  --init-config      Install example configuration file
-  --show-config      Show example configuration file content
-  -v, --verbose      Show verbose output
-  -h                 Show help
-  --help             Show full help
-  -V, --version      Show version
+  ${C_WHITE}${SCRIPT_DESCRIPTION}${C_RESET}
 
 
-EOF
+${C_BLUE}${C_BOLD}USAGE${C_RESET}
+
+  ${C_GREEN}${SCRIPT_NAME}${C_RESET} ${C_ITALIC}${C_YELLOW}[options]${C_RESET} ${C_ITALIC}${C_PURPLE}[search query]${C_RESET}
+
+
+${C_BLUE}${C_BOLD}OPTIONS${C_RESET}
+
+  ${C_YELLOW}-k${C_RESET}, ${C_YELLOW}--keybindings${C_RESET}
+      ${C_WHITE}Show keybindings${C_RESET}
+  
+  ${C_YELLOW}-i${C_RESET}, ${C_YELLOW}--init-config${C_RESET}
+      ${C_WHITE}Install example configuration file${C_RESET}
+  
+  ${C_YELLOW}-s${C_RESET}, ${C_YELLOW}--show-config${C_RESET}
+      ${C_WHITE}Show example configuration file content${C_RESET}
+  
+  ${C_YELLOW}-v${C_RESET}, ${C_YELLOW}--verbose${C_RESET}
+      ${C_WHITE}Show verbose output${C_RESET}
+  
+  ${C_YELLOW}-h${C_RESET}
+      ${C_WHITE}Show help${C_RESET}
+  
+  ${C_YELLOW}--help${C_RESET}
+      ${C_WHITE}Show full help${C_RESET}
+  
+  ${C_YELLOW}-V${C_RESET}, ${C_YELLOW}--version${C_RESET}
+      ${C_WHITE}Show version${C_RESET}
+
+
+HELPMENU
+  )\n\n"
+}
+
+show_examples() {
+  printf "$(cat <<EXAMPLESMENU
+
+${C_BLUE}${C_BOLD}EXAMPLES${C_RESET}
+
+  ${C_WHITE}Start ${SCRIPT_NAME} with no options or query${C_RESET}
+
+    ${C_GRAY}\$${C_RESET} ${C_GREEN}${SCRIPT_NAME}${C_RESET}
+
+
+  ${C_WHITE}Start ${SCRIPT_NAME} with an initial search query of ${C_RESET}${C_PURPLE}'rclone'${C_RESET}
+
+    ${C_GRAY}\$${C_RESET} ${C_GREEN}${SCRIPT_NAME}${C_RESET} ${C_PURPLE}'rclone'${C_RESET}
+
+
+  ${C_WHITE}Install ${SCRIPT_NAME} configuration file${C_RESET}
+
+    ${C_GRAY}\$${C_RESET} ${C_GREEN}${SCRIPT_NAME}${C_RESET} ${C_YELLOW}--init-config${C_RESET}
+
+
+  ${C_WHITE}Show ${SCRIPT_NAME} keybindings${C_RESET}
+
+    ${C_GRAY}\$${C_RESET} ${C_GREEN}${SCRIPT_NAME}${C_RESET} ${C_YELLOW}--keybindings${C_RESET}
+
+
+EXAMPLESMENU
+  )\n\n"
 }
 
 # TODO: Add more keybindings
 #  Ctrl-h              Show help
 #  Ctrl-f              Start recursive grep search
 show_keybindings() {
-  cat <<'EOF'
-KEYBINDINGS:
+  printf "$(cat <<KEYBINDINGSMENU
 
-  NAVIGATION:
+${C_BLUE}${C_BOLD}KEYBINDINGS${C_RESET}
+
+  ${C_CYAN}NAVIGATION${C_RESET}
 
     ↑/↓                   - Move up/down
     PGUP                  - Move up one page
@@ -287,59 +333,67 @@ KEYBINDINGS:
     HOME                  - Move to first
     END                   - Move to last
 
-  SELECT:
+  ${C_CYAN}SELECT${C_RESET}
 
     TAB / Shift-TAB       - Select / Unselect
     CTRL-a                - Select all
     CTRL-d                - Deselect all
 
-  ACTIONS:
+  ${C_CYAN}ACTIONS${C_RESET}
 
     ENTER                 - Perform action on selection
     CTRL-s                - Download selection
 
 
-  QUERY:
+  ${C_CYAN}QUERY${C_RESET}
 
     CTRL-l                - Clear query
     CTRL-Backspace        - Clear query
 
-  LAYOUT:
+  ${C_CYAN}LAYOUT${C_RESET}
 
     CTRL-/                - Change layout
     CTRL-v                - Toggle preview
     ?                     - Show keybindings
 
-  EXIT:
+  ${C_CYAN}EXIT${C_RESET}
 
     CTRL-c                - Exit
     CTRL-w                - Exit
     ESC                   - Exit
 
 
-EOF
+KEYBINDINGSMENU
+  )\n\n\n"
 }
 
 show_config_file_paths() {
-  cat <<EOF
-CONFIG FILES (in order):
+  printf "$(cat <<CONFIGFILESMENU
+${C_BLUE}${C_BOLD}CONFIGURATION FILES${C_RESET} ${C_ITALIC}${C_GRAY}(in order)${C_RESET}
 
 $(printf '  %s\n' "${CONFIG_PATHS[@]}")
 
 
-EOF
+CONFIGFILESMENU
+  )\n\n\n"
 }
 
 show_version() {
-  printf '%s %s\n' "${SCRIPT_NAME}" "${VERSION}"
+  printf '%b%s%b %b%s%b\n' "${C_GREEN}" "${SCRIPT_NAME}" "${C_RESET}" "${C_YELLOW}" "${VERSION}" "${C_RESET}"
+}
+
+show_author() {
+  printf '%s %s\n' "${SCRIPT_AUTHOR}" "${SCRIPT_AUTHOR_URL}"
 }
 
 show_help_full() {
   draw_line
   show_help
+  show_examples
   show_keybindings
   show_config_file_paths
   show_version
+  show_author
   draw_line
 }
 
@@ -494,8 +548,8 @@ fi
 while [[ $# -gt 0 ]]; do
   case "${1}" in
     -k|--key*)    show_keybindings;                           exit 0 ;;
-    --init-c*)    CONFIG_INIT=true;                           shift  ;;
-    --show-c*)    show_config_file_contents;                  exit 0 ;;
+    -i|--init-c*) CONFIG_INIT=true;                           shift  ;;
+    -s|--show-c*) show_config_file_contents;                  exit 0 ;;
     -v|--verb*)   export VERBOSE=true;                        shift  ;;
     -h)           show_help;                                  exit 0 ;;
     --he*)        show_help_full;                             exit 0 ;;
@@ -666,19 +720,19 @@ main() {
 
     case "${choice}" in
       "Install config")
-        install_example_config;
+        install_example_config
         exit 0
         ;;
       "Show config")
-        show_config_file_contents | "${RCLONEFZF_PAGER}";
+        show_config_file_contents
         exit 0
         ;;
       "Keybindings")
-        show_keybindings | "${RCLONEFZF_PAGER}";
+        show_keybindings
         exit 0
         ;;
       "Help")
-        show_help_full | "${RCLONEFZF_PAGER}";
+        show_help_full
         exit 0
         ;;
       "Exit"|"")
