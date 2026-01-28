@@ -18,23 +18,23 @@ readonly VERSION="1.0.15"
 readonly XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rclonefzf"
 readonly CONFIG_PATHS=(
   "${XDG_CONFIG_DIR}/rclonefzf.conf"
-  "${HOME}/.config/rclonefzf/rclonefzf.conf"
   "${HOME}/.rclonefzf.conf"
 )
 
 #######################################
 # Defaults (override via config)
 #######################################
-THEME="default"
-PREVIEW_WINDOW="right:60%:wrap"
-LAYOUT="reverse"
-BORDER="rounded"
+THEME="${THEME:-default}"
+PREVIEW_WINDOW="${PREVIEW_WINDOW:-right:60%:wrap}"
+LAYOUT="${LAYOUT:-reverse}"
+BORDER="${BORDER:-rounded}"
 ENABLE_PREVIEW=true
-VERBOSE=false
-CTRL_C_CLOSE=true
+VERBOSE=${VERBOSE:-false}
+CTRL_C_CLOSE=${CTRL_C_CLOSE:-true}
 RCLONEFZF_PAGER="${PAGER:-less}"
-RCLONE_MAX_DEPTH=10
-# RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-}"
+RCLONE_MAX_DEPTH=${RCLONE_MAX_DEPTH:-10}
+# TODO: Figure out if we should have this. was commented.
+RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-}"
 
 #######################################
 # Built-in themes
@@ -185,18 +185,21 @@ die() {
   printf '%b%s%b%s%b\n' "${text_color[BG_Red]}${text_color[White]}${text_color[Bold]}" "  ERROR  " "${text_color[reset]}${text_color[Red]}" " ${msg}" "${text_color[reset]}" >&2
   exit 1
 }
+export -f die
 
 warn() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
   printf '%b%s%b%s%b\n' "${text_color[BG_Yellow]}${text_color[Black]}${text_color[Bold]}" " WARNING " "${text_color[reset]}${text_color[Yellow]}" " ${msg}" "${text_color[reset]}" >&2
 }
+export -f warn
 
 info() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
   printf '%b%s%b%s%b\n' "${text_color[BG_Blue]}${text_color[White]}${text_color[Bold]}" "   INFO  " "${text_color[reset]}${text_color[Blue]}" " ${msg}" "${text_color[reset]}"
 }
+export -f info
 
 verbose() {
   local msg="${1:-}"
@@ -205,12 +208,14 @@ verbose() {
     printf '%b%s%b%s%b\n' "${text_color[BG_Purple]}${text_color[White]}${text_color[Bold]}" " VERBOSE " "${text_color[reset]}${text_color[Purple]}" " ${msg}" "${text_color[reset]}"
   fi
 }
+export -f verbose
 
 success() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
   printf '%b%s%b%s%b\n' "${text_color[BG_Green]}${text_color[Black]}${text_color[Bold]}" " SUCCESS " "${text_color[reset]}${text_color[Green]}" " ${msg}" "${text_color[reset]}"
 }
+export -f success
 
 require_cmd() {
   local input=${1}
@@ -323,33 +328,33 @@ example_config() {
 # Override defaults here
 
 # Theme: default, light, tokyo-night, neon
-THEME="neon"
+THEME="${THEME:-neon}"
 
 # Preview window options for fzf
-PREVIEW_WINDOW="right:60%:wrap"
+PREVIEW_WINDOW="${PREVIEW_WINDOW:-right:60%:wrap}"
 
 # Layout: default, reverse
-LAYOUT="reverse"
+LAYOUT="${LAYOUT:-reverse}"
 
 # Border style: default, rounded
-BORDER="rounded"
+BORDER="${BORDER:-rounded}"
 
 # Enable preview window
-ENABLE_PREVIEW=true
+ENABLE_PREVIEW=${ENABLE_PREVIEW:-true}
 
 # Verbose output
-VERBOSE=false
+VERBOSE=${VERBOSE:-false}
 
 # Pager (less, bat, etc.)
 RCLONEFZF_PAGER="${PAGER:-less}"
 
 # Close rclonefzf with 'ctrl-c' keypress
-CTRL_C_CLOSE=true
+CTRL_C_CLOSE=${CTRL_C_CLOSE:-true}
 
 # rclone max depth, how deep to view down tree
-RCLONE_MAX_DEPTH=10
+RCLONE_MAX_DEPTH=${RCLONE_MAX_DEPTH:-10}
 
-# Directory to save downloaded files to
+# Directory to save downloaded files to (uncomment or leave blank to use '\${PWD}')
 RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/rclonefzf}"
 
 
@@ -416,17 +421,55 @@ ensure_download_dir() {
   verbose "Final download directory: ${RCLONEFZF_DOWNLOADS_DIR}"
 }
 
+rclonefzf_copy_selected() {
+  local line file
+  local remote="${RCLONE_REMOTE:?RCLONE_REMOTE not set}"
+  local dest="${RCLONEFZF_DOWNLOADS_DIR:?Download dir not set}"
+
+  # Read stdin (all selected files)
+  while IFS= read -r line; do
+    [[ -z "${line}" ]] && continue
+
+    # Use eval to respect quotes in input line
+    # TODO: Do not use 'eval'
+    local files
+    eval "files=(${line})"
+
+    info "Starting file download ..."
+
+    for file in "${files[@]}"; do
+      # Remove any remaining leading/trailing single quotes (if needed)
+      file="${file#\'}"
+      file="${file%\'}"
+
+      # Skip empty filenames
+      [[ -z "${file}" ]] && continue
+
+      verbose "Downloading file: '${remote}:${file}' → '${dest}${file}' ..."
+      if rclone copy "${remote}:${file}" "${dest}" "${RCLONE_COPY_OPTIONS[@]}"; then
+        verbose "Downloaded file: '${remote}:${file}' → '${dest}${file}'"
+      else
+        warn "Unable to download file: '${remote}:${file}'"
+      fi
+    done
+  done
+}
+export -f rclonefzf_copy_selected
+
 #######################################
 # Command line argument parsing
 #######################################
 SEARCH_QUERY=""
 CONFIG_INIT=false
+if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
+  export VERBOSE
+fi
 
 while [[ $# -gt 0 ]]; do
   case "${1}" in
     -k|--key*)    show_keybindings;                           exit 0 ;;
     --init-c*)    CONFIG_INIT=true;                           shift  ;;
-    --show-c*)    show_config_file_contents;                        exit 0 ;;
+    --show-c*)    show_config_file_contents;                  exit 0 ;;
     -v|--verb*)   export VERBOSE=true;                        shift  ;;
     -h)           show_help;                                  exit 0 ;;
     --he*)        show_help_full;                             exit 0 ;;
@@ -455,6 +498,7 @@ fi
 #######################################
 FZF_OPTS=(
   --ansi
+  --multi
   --layout="${LAYOUT}"
   --border="${BORDER}"
   --color="$(printf '%s' "${FZF_COLORS}" | tr '\n' ',' | sed 's/,$//')"
@@ -467,6 +511,9 @@ if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
 fi
 readonly FZF_OPTS
 
+FZF_BIND_COPY='ctrl-s:execute(bash -c "rclonefzf_copy_selected" <<< "{+}")+abort'
+export FZF_BIND_COPY
+
 FZF_BIND_OPTIONS=(
   --bind='ctrl-/:change-preview-window(up,border-rounded|up,40%,border-rounded|left,border-rounded|left,border-rounded,40%|down,border-rounded|down,40%,border-rounded|down,10%,border-rounded|hidden|right,40%,border-rounded|right,70%,border-rounded|right,90%,border-rounded)'
   --bind='ctrl-l:clear-query+clear-screen+clear-selection'
@@ -475,9 +522,8 @@ FZF_BIND_OPTIONS=(
   --bind='ctrl-bspace:clear-query'
   --bind='ctrl-v:toggle-preview'
   --bind='ctrl-w:abort'
+  --bind="${FZF_BIND_COPY}"
 )
-
-  # --bind="ctrl-s:execute(echo rclone copy '${rclone_remote}:{r}' '${RCLONEFZF_DOWNLOADS_DIR}' '${RCLONE_COPY_OPTIONS[@]}')+abort"
 readonly FZF_BIND_OPTIONS
 
 #######################################
@@ -500,6 +546,10 @@ RCLONE_COPY_OPTIONS=(
   --progress
 )
 
+if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
+  RCLONE_COPY_OPTIONS+=( --verbose)
+fi
+
 readonly RCLONE_LSF_OPTIONS
 readonly RCLONE_CAT_OPTIONS
 readonly RCLONE_COPY_OPTIONS
@@ -518,7 +568,7 @@ list_remotes() {
     die "Failed to list rclone remotes"
   fi
 
-  (( ${#remotes[@]} > 0 )) || die "No remotes found. Please configure rclone: rclone config"
+  (( ${#remotes[@]} > 0 )) || die "No remotes found. Please configure rclone: 'rclone config'"
 
   # Strip trailing ':' from each remote
   local i
@@ -541,53 +591,26 @@ file_viewer() {
   rclone_remote="${1}"
   file_viewer_prompt="Remote: '${rclone_remote}': "
 
-  # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
-  # TODO: Fix quoting hell
   #shellcheck disable=2145
   selection=$(
     rclone lsf "${RCLONE_LSF_OPTIONS[@]}" "${rclone_remote}:" 2> /dev/null |
       fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
-        --bind "ctrl-s:execute(
-            printf '%s\n' {+} |
-            while IFS= read -r file; do
-              rclone copy ${rclone_remote}:\${file} ${RCLONEFZF_DOWNLOADS_DIR} $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
-              echo \"  ✓ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\" ||
-              echo \"  ✗ ${rclone_remote}:\${file} → \${RCLONEFZF_DOWNLOADS_DIR}\${file}\"
-            done)+abort"                 \
-        --multi                          \
         --query "${SEARCH_QUERY:-}"      \
         --prompt "${file_viewer_prompt}" \
-        --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true)
-  [[ -z "${selection}" ]] && verbose "No files selected." && return
+        --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true
+  )
+
+  if [[ -z "${selection}" ]]; then
+    verbose "No files selected."
+    return
+  fi
 
   mapfile -t selection_arr <<< "${selection}"
-  # TODO: Fix the CTRL-S bind so we dont have to repeat it both times here
-  # TODO: Fix quoting hell
   #shellcheck disable=2145
   printf '%s\n' "${selection_arr[@]}" |
     fzf "${FZF_OPTS[@]}" "${FZF_BIND_OPTIONS[@]}" \
-      --bind "ctrl-s:execute(
-          printf '%s\n' {+} |
-          while IFS= read -r file; do
-            rclone copy ${rclone_remote}:\${file} ${RCLONEFZF_DOWNLOADS_DIR} $(printf '%q ' "${RCLONE_COPY_OPTIONS[@]}") &&
-              echo \"  ✓ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\" ||
-              echo \"  ✗ \${file} → \${RCLONEFZF_DOWNLOADS_DIR}/\${file}\"
-          done)+abort"                                  \
-      --multi                                           \
       --prompt "${file_viewer_prompt} Selected Files: " \
       --preview "rclone cat \"${RCLONE_CAT_OPTIONS[@]}\" '${rclone_remote}:{r}' 2>/dev/null" || true
-}
-
-# TODO: Remove this function. not used.
-# --bind="ctrl-s:execute(echo $(copy_file ${rclone_remote} {+}))"
-copy_file() {
-  local rclone_remote rclone_files local_dest
-  rclone_remote="${1}"
-  shift
-  # rclone_files="${@}"
-  for file in "${@}"; do
-    echo rclone copy "${rclone_remote}:${file}" "${RCLONEFZF_DOWNLOADS_DIR}/" "${RCLONE_COPY_OPTIONS[@]}"
-  done
 }
 
 #######################################
