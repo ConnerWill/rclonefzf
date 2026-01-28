@@ -33,7 +33,6 @@ VERBOSE=${VERBOSE:-false}
 CTRL_C_CLOSE=${CTRL_C_CLOSE:-true}
 RCLONEFZF_PAGER="${PAGER:-less}"
 RCLONE_MAX_DEPTH=${RCLONE_MAX_DEPTH:-10}
-# TODO: Figure out if we should have this. was commented.
 RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-}"
 
 #######################################
