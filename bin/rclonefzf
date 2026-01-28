@@ -266,32 +266,32 @@ EOF
 }
 
 # TODO: Add more keybindings
-#  ?                   Show keybindings
 #  Ctrl-h              Show help
-#  CTRL-s              Save selection
+#  Ctrl-f              Start recursive grep search
 show_keybindings() {
   cat <<'EOF'
 KEYBINDINGS:
 
-  ENTER                     Perform action on selection
-  TAB / Shift-TAB           Select / Unselect
-  CTRL-a                    Select all
-  CTRL-d                    Deselect all
-  CTRL-s                    Download selection
-  CTRL-l                    Clear query
-  CTRL-Backspace            Clear query
-  CTRL-/                    Change layout
-  CTRL-v                    Toggle preview
-  ?                         Show keybindings
-  CTRL-c                    Exit
-  CTRL-w                    Exit
-  ESC                       Exit
+  ↑/↓                   - Move up/down
+  ENTER                 - Perform action on selection
+  TAB / Shift-TAB       - Select / Unselect
+  CTRL-a                - Select all
+  CTRL-d                - Deselect all
+  CTRL-s                - Download selection
+  CTRL-l                - Clear query
+  CTRL-Backspace        - Clear query
+  CTRL-/                - Change layout
+  CTRL-v                - Toggle preview
+  ?                     - Show keybindings
+  CTRL-c                - Exit
+  CTRL-w                - Exit
+  ESC                   - Exit
 
 
 EOF
 }
 
-show_config_files() {
+show_config_file_paths() {
   cat <<EOF
 CONFIG FILES (in order):
 
@@ -308,7 +308,7 @@ show_version() {
 show_help_full() {
   show_help
   show_keybindings
-  show_config_files
+  show_config_file_paths
   show_version
 }
 
@@ -370,7 +370,7 @@ install_example_config() {
   success "Created configuration file: '${cfg_file}'"
 }
 
-show_example_config() {
+show_config_file_contents() {
   local cfg_file="${XDG_CONFIG_DIR}/rclonefzf.conf"
   if [[ -f "${cfg_file}" ]]; then
     "${RCLONEFZF_PAGER}" "${cfg_file}"
@@ -426,7 +426,7 @@ while [[ $# -gt 0 ]]; do
   case "${1}" in
     -k|--key*)    show_keybindings;                           exit 0 ;;
     --init-c*)    CONFIG_INIT=true;                           shift  ;;
-    --show-c*)    show_example_config;                        exit 0 ;;
+    --show-c*)    show_config_file_contents;                        exit 0 ;;
     -v|--verb*)   export VERBOSE=true;                        shift  ;;
     -h)           show_help;                                  exit 0 ;;
     --he*)        show_help_full;                             exit 0 ;;
@@ -617,7 +617,7 @@ main() {
         exit 0
         ;;
       "Show config")
-        show_example_config | "${RCLONEFZF_PAGER}";
+        show_config_file_contents | "${RCLONEFZF_PAGER}";
         exit 0
         ;;
       "Keybindings")

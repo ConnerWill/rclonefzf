@@ -143,6 +143,8 @@ rclonefzf "query"
 
 | Key | Action |
 |-----|--------|
+| <kbd>↑</kbd> | Move up |
+| <kbd>↓</kbd> | Move down |
 | <kbd>ENTER</kbd> | Perform action on selection |
 | <kbd>TAB</kbd> | Select item |
 | <kbd>Shift</kbd>+<kbd>TAB</kbd> | Unselect item |
