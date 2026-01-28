@@ -16,8 +16,8 @@ _rclonefzf() {
   opts=(
     '(-h --help)'{-h,--help}'[Show help (short or full)]'
     '(-k --keybindings)'{-k,--keybindings}'[Show keybindings]'
-    '--init-config[Install example configuration file]'
-    '--show-config[Show example configuration file content]'
+    '(-i --init-config)'{-i,--init-config}'[Install example configuration file]'
+    '(-s --show-config)'{-s,--show-config}'[Show example configuration file content]'
     '(-V --version)'{-V,--version}'[Show version]'
     '(-v --verbose)'{-v,--verbose}'[Show verbose output]'
   )

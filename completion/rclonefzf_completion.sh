@@ -16,20 +16,20 @@ _rclonefzf_complete() {
 
     # Complete -short options
     if [[ ${cur} == -* ]]; then
-        COMPREPLY=( $(compgen -W "-h -k -v -V" -- "${cur}") )
+        COMPREPLY=( $(compgen -W "-h -k -i -s -v -V" -- "${cur}") )
         return
     fi
 
     # If we're at position 1 (first word after command) → show options only
     if (( cword == 1 )); then
-        local opts="-h --help -k --keybindings --init-config --show-config -v --verbose -V --version"
+        local opts="-h --help -k --keybindings -i --init-config -s --show-config -v --verbose -V --version"
         COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
         return 0
     fi
 
     # After any recognized option → nothing more
     case "${prev}" in
-        -h|--help|-k|--keybindings|--init-config|--show-config|-v|--verbose|-V|--version)
+        -h|--help|-k|--keybindings|-i|--init-config|-s|--show-config|-v|--verbose|-V|--version)
             return 0
             ;;
     esac
