@@ -103,43 +103,34 @@ header:#FF99FF
 #######################################
 # Text colors
 #######################################
-declare -Al text_color
-declare -Al text_fx
-
-text_color[Reset]='\x1B[0m'             ## Reset Colors/Styles
-text_color[reset]='\x1B[0m'             #
-text_color[Bold]='\x1B[1m'              ## Bold style
-text_color[bold]='\x1B[1m'              #
-text_color[Italic]='\x1B[3m'            ## Italic style
-text_color[italic]='\x1B[3m'            #
-text_color[Underline]='\x1B[4m'         ## Underline style
-text_color[underline]='\x1B[4m'         #
-text_color[Black]='\x1B[38;5;0m'        ## Foreground color
-text_color[Gray]='\x1B[38;5;245m'       #
-text_color[DarkGray]='\x1B[38;5;8m'     #
-text_color[White]='\x1B[38;5;15m'       #
-text_color[Red]='\x1B[38;5;196m'        #
-text_color[Green]='\x1B[38;5;46m'       #
-text_color[Yellow]='\x1B[38;5;190m'     #
-text_color[Blue]='\x1B[38;5;33m'        #
-text_color[Purple]='\x1B[38;5;93m'      #
-text_color[Magenta]='\x1B[38;5;201m'    #
-text_color[Cyan]='\x1B[38;5;87m'        #
-text_color[BG_Black]='\x1B[48;5;0m'     ## Background color
-text_color[BG_Gray]='\x1B[48;5;245m'    #
-text_color[BG_DarkGray]='\x1B[48;5;8m'  #
-text_color[BG_White]='\x1B[48;5;15m'    #
-text_color[BG_Red]='\x1B[48;5;196m'     #
-text_color[BG_Green]='\x1B[48;5;46m'    #
-text_color[BG_Yellow]='\x1B[48;5;190m'  #
-text_color[BG_Blue]='\x1B[48;5;33m'     #
-text_color[BG_Purple]='\x1B[48;5;93m'   #
-text_color[BG_Magenta]='\x1B[48;5;201m' #
-text_color[BG_Cyan]='\x1B[48;5;87m'     #
-text_fx[Save_Title]='\x1B[22;0t'        ## Save title
-text_fx[save_title]='\x1B[22;0t'        #
-text_fx[Restore_Title]='\x1B[23;0t'     ## Restore title
-text_fx[restore_title]='\x1B[23;0t'     #
+export C_RESET='\x1B[0m'
+export C_BOLD='\x1B[1m'
+export C_ITALIC='\x1B[3m'
+export C_UNDERLINE='\x1B[4m'
+export C_BLACK='\x1B[38;5;0m'
+export C_GRAY='\x1B[38;5;245m'
+export C_DARKGRAY='\x1B[38;5;8m'
+export C_WHITE='\x1B[38;5;15m'
+export C_RED='\x1B[38;5;196m'
+export C_GREEN='\x1B[38;5;46m'
+export C_YELLOW='\x1B[38;5;190m'
+export C_BLUE='\x1B[38;5;33m'
+export C_PURPLE='\x1B[38;5;93m'
+export C_MAGENTA='\x1B[38;5;201m'
+export C_CYAN='\x1B[38;5;87m'
+export C_BG_BLACK='\x1B[48;5;0m'
+export C_BG_GRAY='\x1B[48;5;245m'
+export C_BG_DARKGRAY='\x1B[48;5;8m'
+export C_BG_WHITE='\x1B[48;5;15m'
+export C_BG_RED='\x1B[48;5;196m'
+export C_BG_GREEN='\x1B[48;5;46m'
+export C_BG_YELLOW='\x1B[48;5;190m'
+export C_BG_BLUE='\x1B[48;5;33m'
+export C_BG_PURPLE='\x1B[48;5;93m'
+export C_BG_MAGENTA='\x1B[48;5;201m'
+export C_BG_CYAN='\x1B[48;5;87m'
+export C_SAVE_TITLE='\x1B[22;0t'
+export C_RESTORE_TITLE='\x1B[23;0t'
 
 #######################################
 # Load config
@@ -181,7 +172,7 @@ resolve_theme() {
 #######################################
 die() {
   local msg="${1:-Unknown error}"
-  printf '%b%s%b%s%b\n' "${text_color[BG_Red]}${text_color[White]}${text_color[Bold]}" "  ERROR  " "${text_color[reset]}${text_color[Red]}" " ${msg}" "${text_color[reset]}" >&2
+  printf '%b%s%b%s%b\n' "${C_BG_RED}${C_WHITE}${C_BOLD}" "  ERROR  " "${C_RESET}${C_RED}" " ${msg}" "${C_RESET}" >&2
   exit 1
 }
 export -f die
@@ -189,14 +180,14 @@ export -f die
 warn() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
-  printf '%b%s%b%s%b\n' "${text_color[BG_Yellow]}${text_color[Black]}${text_color[Bold]}" " WARNING " "${text_color[reset]}${text_color[Yellow]}" " ${msg}" "${text_color[reset]}" >&2
+  printf '%b%s%b%s%b\n' "${C_BG_YELLOW}${C_BLACK}${C_BOLD}" " WARNING " "${C_RESET}${C_YELLOW}" " ${msg}" "${C_RESET}" >&2
 }
 export -f warn
 
 info() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
-  printf '%b%s%b%s%b\n' "${text_color[BG_Blue]}${text_color[White]}${text_color[Bold]}" "   INFO  " "${text_color[reset]}${text_color[Blue]}" " ${msg}" "${text_color[reset]}"
+  printf '%b%s%b%s%b\n' "${C_BG_BLUE}${C_WHITE}${C_BOLD}" "   INFO  " "${C_RESET}${C_BLUE}" " ${msg}" "${C_RESET}"
 }
 export -f info
 
@@ -204,7 +195,7 @@ verbose() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
   if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-    printf '%b%s%b%s%b\n' "${text_color[BG_Purple]}${text_color[White]}${text_color[Bold]}" " VERBOSE " "${text_color[reset]}${text_color[Purple]}" " ${msg}" "${text_color[reset]}"
+    printf '%b%s%b%s%b\n' "${C_BG_PURPLE}${C_WHITE}${C_BOLD}" " VERBOSE " "${C_RESET}${C_PURPLE}" " ${msg}" "${C_RESET}"
   fi
 }
 export -f verbose
@@ -212,7 +203,7 @@ export -f verbose
 success() {
   local msg="${1:-}"
   [[ -z "${msg}" ]] && return
-  printf '%b%s%b%s%b\n' "${text_color[BG_Green]}${text_color[Black]}${text_color[Bold]}" " SUCCESS " "${text_color[reset]}${text_color[Green]}" " ${msg}" "${text_color[reset]}"
+  printf '%b%s%b%s%b\n' "${C_BG_GREEN}${C_BLACK}${C_BOLD}" " SUCCESS " "${C_RESET}${C_GREEN}" " ${msg}" "${C_RESET}"
 }
 export -f success
 
@@ -229,8 +220,8 @@ require_cmd() {
 confirm() {
   local prompt="${1:-Are you sure?}"
   local response
-  printf '%b%s%b ' "${text_color[BG_Cyan]}${text_color[Black]}${text_color[Bold]}" " CONFIRM " "${text_color[reset]}"
-  printf "${text_color[Bold]}${text_color[Yellow]}%s ${text_color[reset]}${text_color[Bold]}${text_color[White]}[${text_color[Green]}y${text_color[White]}/${text_color[Red]}N${text_color[White]}]: ${text_color[reset]}" "${prompt}"
+  printf '%b%s%b ' "${C_BG_CYAN}${C_BLACK}${C_BOLD}" " CONFIRM " "${C_RESET}"
+  printf "${C_BOLD}${C_YELLOW}%s ${C_RESET}${C_BOLD}${C_WHITE}[${C_GREEN}y${C_WHITE}/${C_RED}N${C_WHITE}]: ${C_RESET}" "${prompt}"
   read -r response
   [[ "${response}" =~ ^[Yy]$ ]]
 }
