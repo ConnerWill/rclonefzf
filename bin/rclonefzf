@@ -597,17 +597,22 @@ fi
 #######################################
 FZF_OPTS=(
   --ansi
-  --multi
-  --layout="${LAYOUT}"
+  --bind="?:preview(echo '$(show_keybindings)')"
+  --bind='ctrl-w:abort'
+  --bind='end:last'
+  --bind='esc:abort'
+  --bind='home:first'
+  --bind='pgdn:page-down'
+  --bind='pgup:page-up'
   --border="${BORDER}"
   --color="$(printf '%s' "${FZF_COLORS}" | tr '\n' ',' | sed 's/,$//')"
-  --bind='esc:abort'
+  --delimiter=' '
+  --ellipsis='⣿'
   --header='Press ? for keybindings'
-  --bind="?:preview(echo '$(show_keybindings)')"
-  --bind='home:first'
-  --bind='end:last'
-  --bind='pgup:page-up'
-  --bind='pgdn:page-down'
+  --info=inline
+  --layout="${LAYOUT}"
+  --multi
+  --tiebreak=begin
 )
 if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
   FZF_OPTS+=( --preview-window="${PREVIEW_WINDOW}" )
@@ -620,6 +625,8 @@ FZF_BIND_COPY='ctrl-s:execute(bash -c "rclonefzf_copy_selected" <<< "{+}")+abort
 # shellcheck disable=SC2090
 export FZF_BIND_COPY
 
+# NOTE: These bind options are not for the main menu. If you want to add bindings to main menu,
+# Please configure bindings in 'FZF_OPTS'
 FZF_BIND_OPTIONS=(
   --bind='ctrl-/:change-preview-window(up,border-rounded|up,40%,border-rounded|left,border-rounded|left,border-rounded,40%|down,border-rounded|down,40%,border-rounded|down,10%,border-rounded|hidden|right,40%,border-rounded|right,70%,border-rounded|right,90%,border-rounded)'
   --bind='ctrl-l:clear-query+clear-screen+clear-selection'
@@ -627,7 +634,6 @@ FZF_BIND_OPTIONS=(
   --bind='ctrl-d:deselect-all'
   --bind='ctrl-bspace:clear-query'
   --bind='ctrl-v:toggle-preview'
-  --bind='ctrl-w:abort'
   --bind="${FZF_BIND_COPY}"
 )
 readonly FZF_BIND_OPTIONS
