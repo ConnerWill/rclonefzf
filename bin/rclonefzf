@@ -612,6 +612,7 @@ FZF_OPTS=(
   --info=inline
   --layout="${LAYOUT}"
   --multi
+  --cycle
   --tiebreak=begin
 )
 if [[ -n "${ENABLE_PREVIEW}" && "${ENABLE_PREVIEW}" != false ]]; then
