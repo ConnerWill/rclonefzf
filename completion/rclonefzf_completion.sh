@@ -3,38 +3,111 @@
 # rclonefzf - bash completion
 
 _rclonefzf_complete() {
-    local cur prev words cword
+    local cur prev cword
+    local -a theme_options opts long_opts short_opts
+
     _init_completion || return
 
     COMPREPLY=()
 
-    # Complete --long-options
-    if [[ ${cur} == --* ]]; then
-        COMPREPLY=( $(compgen -W "--help --help-man --keybindings --init-config --show-config --verbose --version" -- "${cur}") )
-        return
-    fi
+    theme_options=(
+        default
+        light
+        tokyo-night
+        neon
+        catppuccin-mocha
+        catppuccin-latte
+        dracula
+        gruvbox-dark
+        gruvbox-light
+        nord
+        solarized-dark
+        solarized-light
+        rose-pine
+        rose-pine-moon
+        rose-pine-dawn
+        onedark
+        kanagawa
+        github-dark
+        github-light
+        monokai
+        material-dark
+        material-light
+        ayu-dark
+        everforest-dark
+        everforest-light
+        iceberg
+        papercolor-light
+        papercolor-dark
+        doom-one
+        nightfox
+        carbonfox
+    )
 
-    # Complete -short options
-    if [[ ${cur} == -* ]]; then
-        COMPREPLY=( $(compgen -W "-h -k -i -s -v -V" -- "${cur}") )
-        return
-    fi
+    long_opts=(
+        --help
+        --help-man
+        --keybindings
+        --init-config
+        --show-config
+        --no-preview
+        --theme
+        --list-themes
+        --preview-themes
+        --verbose
+        --version
+    )
 
-    # If we're at position 1 (first word after command) → show options only
-    if (( cword == 1 )); then
-        local opts="-h --help --help-man -k --keybindings -i --init-config -s --show-config -v --verbose -V --version"
-        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
-        return 0
-    fi
+    short_opts=(
+        -h
+        -k
+        -i
+        -s
+        -t
+        -l
+        -v
+        -V
+    )
 
-    # After any recognized option → nothing more
+    opts=(
+        "${short_opts[@]}"
+        "${long_opts[@]}"
+    )
+
+    # Complete theme names after: rclonefzf -t <TAB>
     case "${prev}" in
-        -h|--help|--help-man|-k|--keybindings|-i|--init-config|-s|--show-config|-v|--verbose|-V|--version)
+        -t|--theme)
+            mapfile -t COMPREPLY < <(compgen -W "${theme_options[*]}" -- "${cur}")
             return 0
             ;;
     esac
 
-    # Fallback: nothing
+    # Complete long options.
+    if [[ ${cur} == --* ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "${long_opts[*]}" -- "${cur}")
+        return 0
+    fi
+
+    # Complete short options.
+    if [[ ${cur} == -* ]]; then
+        mapfile -t COMPREPLY < <(compgen -W "${short_opts[*]}" -- "${cur}")
+        return 0
+    fi
+
+    # If we're at position 1, show options only.
+    if (( cword == 1 )); then
+        mapfile -t COMPREPLY < <(compgen -W "${opts[*]}" -- "${cur}")
+        return 0
+    fi
+
+    # After any recognized no-argument option, complete nothing.
+    case "${prev}" in
+        -h|--help|--help-man|-k|--keybindings|-i|--init-config|-s|--show-config|--no-preview|-l|--list-themes|--preview-themes|-v|--verbose|-V|--version)
+            return 0
+            ;;
+    esac
+
+    # Fallback: complete nothing.
     return 0
 }
 

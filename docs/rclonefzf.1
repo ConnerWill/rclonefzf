@@ -1,5 +1,5 @@
 .\" Manpage for rclonefzf
-.TH RCLONEFZF 1 "2026-01-06" "1.0.19" "rclonefzf manual"
+.TH RCLONEFZF 1 "2026-01-06" "2.0.20" "rclonefzf manual"
 
 .SH NAME
 rclonefzf \- interactive terminal UI for browsing rclone remotes using fzf
@@ -22,21 +22,52 @@ Configuration is loaded from standard XDG locations, and behavior such as
 themes, layout, preview window, and keybindings can be customized.
 
 .SH OPTIONS
+
+.SS Search
+
+.TP
+.B \-\-no\-preview
+Disable the package information preview window.
+
+.SS Themes
+
+.TP
+.BI "\-t, \-\-theme " theme
+Set the built-in fzf color theme.
+
+.TP
+.B \-l, \-\-list\-themes
+Show the list of built-in themes and exit.
+
+.TP
+.B \-\-preview\-themes
+Interactively preview and select a built-in theme.
+
+After selecting a theme,
+.B rclonefzf
+launches with the selected theme. When that themed session exits, the theme selector is shown again.
+
+.SS Configuration
+
+.TP
+.B \-i, \-\-init\-config
+Install an example configuration file to the XDG config directory and exit.
+
+.TP
+.B \-s, \-\-show\-config
+Show the active example configuration file content and exit.
+
+If a user configuration file exists, it is shown. Otherwise, the built-in example configuration is printed.
+
+.SS Information
+
 .TP
 .B \-k, \-\-keybindings
 Show the list of available keybindings and exit.
 
 .TP
-.B \-i, \-\-init-config
-Install an example configuration file to the XDG config directory and exit.
-
-.TP
-.B \-s, \-\-show-config
-Print the example configuration file to stdout and exit.
-
-.TP
 .B \-v, \-\-verbose
-Show verbose output
+Show verbose output.
 
 .TP
 .B \-h
@@ -44,15 +75,61 @@ Show the short help text and exit.
 
 .TP
 .B \-\-help
-Show full help, including keybindings and config file locations, and exit.
+Show full help, including examples, keybindings, config file locations, version, and author information, then exit.
 
 .TP
 .B \-\-help\-man
-Show manpage help and exit.
+Show the man page and exit.
 
 .TP
 .B \-V, \-\-version
-Show the rclonefzf version and exit.
+Show the
+.B rclonefzf
+version and exit.
+
+.SH EXAMPLES
+
+.TP
+.B rclonefzf
+Open the main menu.
+
+.TP
+.B rclonefzf doc
+Start
+.B rclonefzf
+with an initial search query of
+.BR 
+doc.
+
+.TP
+.B rclonefzf \-\-theme dracula
+Start
+.B rclonefzf
+using the
+.B dracula
+theme.
+
+.TP
+.B rclonefzf \-\-list\-themes
+Show all built-in themes.
+
+.TP
+.B rclonefzf \-\-preview\-themes
+Open the interactive theme selector.
+
+.TP
+.B rclonefzf \-\-no\-preview
+Start
+.B rclonefzf
+with the package preview window disabled.
+
+.TP
+.B rclonefzf \-\-init\-config
+Install an example configuration file.
+
+.TP
+.B rclonefzf \-h
+Show the short help menu.
 
 .SH USAGE
 .TP
@@ -146,32 +223,32 @@ Exit rclonefzf.
 Exit rclonefzf.
 
 .SH CONFIGURATION
-rclonefzf reads configuration files in the following order, using the
-first file found:
+
+.B rclonefzf
+loads the first configuration file found from the following locations, in order:
 
 .RS
 .IP \(bu 2
-.B $XDG_CONFIG_HOME/rclonefzf/rclonefzf.conf
+.BR "$XDG_CONFIG_HOME/rclonefzf/rclonefzf.conf"
 .IP \(bu 2
-.B $HOME/.config/rclonefzf/rclonefzf.conf
+.BR "$HOME/.config/rclonefzf/rclonefzf.conf"
 .IP \(bu 2
-.B $HOME/.rclonefzf.conf
+.BR "$HOME/.rclonefzf.conf"
 .RE
 
-Configuration files are standard shell syntax and override default values.
+The configuration file is a shell-style file that can override default settings.
 
-.SH CONFIG OPTIONS
-Common configuration variables include:
+.SH ENVIRONMENT
 
 .TP
 .B THEME
-Set the fzf color theme.
-Built-in themes include:
-.BR default ,
-.BR light ,
-.BR tokyo-night ,
-and
-.BR neon .
+Default built-in theme.
+
+Default:
+.RS
+.B default
+.RE
+
 
 .TP
 .B PREVIEW_WINDOW
@@ -228,18 +305,28 @@ Download directory
 
 .TP
 .B NO_COLOR
-Do not use color for output.
+Disable ANSI color output.
 
+When set to
+.BR true ,
+.B rclonefzf
+disables colored output in messages and disables yay color output.
 
-.SH DEPENDENCIES
-rclonefzf requires the following commands to be available in PATH:
+.SH FILES
 
-.RS
-.IP \(bu 2
-.B rclone
-.IP \(bu 2
-.B fzf
-.RE
+.TP
+.B $XDG_CONFIG_HOME/rclonefzf/rclonefzf.conf
+Primary XDG configuration file.
+
+.TP
+.B $HOME/.config/rclonefzf/rclonefzf.conf
+Default configuration path when
+.B XDG_CONFIG_HOME
+is not set.
+
+.TP
+.B $HOME/.rclonefzf.conf
+Legacy fallback configuration file.
 
 .SH EXIT STATUS
 .TP
@@ -250,10 +337,29 @@ Successful execution.
 .B 1
 An error occurred.
 
+.SH DEPENDENCIES
+
+.B rclonefzf
+requires:
+
+.RS
+.IP \(bu 2
+.B bash
+.IP \(bu 2
+.B yay
+.IP \(bu 2
+.B fzf
+.IP \(bu 2
+.B sed
+.IP \(bu 2
+.B tr
+.IP \(bu 2
+.B tput
+.RE
+
 .SH SEE ALSO
 .BR rclone (1)
 .BR fzf (1)
-.BR yayfzf (1)
 
 .SH AUTHOR
 Conner Will <conner.will@connerwill.com>

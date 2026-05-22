@@ -1,34 +1,71 @@
 #compdef rclonefzf
 
 _rclonefzf() {
-  local -a opts main_actions
+  local -a opts theme_options
+  local curcontext="${curcontext}" state line
+  local ret=1
 
-  main_actions=(
-    'Browse rclone remotes:Browse files in rclone remotes using rclone'
-    'View files:View file contents of files on rclone remote'
-    'Download files:Download files from rclone remote to configured directory or to PWD'
-    'Install config:Install example config file'
-    'Show config:Show example config content'
-    'Help:Show help / keybindings'
-    'Exit:Quit'
+  typeset -A opt_args
+
+  theme_options=(
+    default
+    light
+    tokyo-night
+    neon
+    catppuccin-mocha
+    catppuccin-latte
+    dracula
+    gruvbox-dark
+    gruvbox-light
+    nord
+    solarized-dark
+    solarized-light
+    rose-pine
+    rose-pine-moon
+    rose-pine-dawn
+    onedark
+    kanagawa
+    github-dark
+    github-light
+    monokai
+    material-dark
+    material-light
+    ayu-dark
+    everforest-dark
+    everforest-light
+    iceberg
+    papercolor-light
+    papercolor-dark
+    doom-one
+    nightfox
+    carbonfox
   )
 
   opts=(
-    '(-h --help)'{-h,--help}'[Show help (short or full)]'
+    '(-h --help)'{-h,--help}'[Show help]'
     '--help-man[Show manpage help]'
     '(-k --keybindings)'{-k,--keybindings}'[Show keybindings]'
     '(-i --init-config)'{-i,--init-config}'[Install example configuration file]'
     '(-s --show-config)'{-s,--show-config}'[Show example configuration file content]'
-    '(-V --version)'{-V,--version}'[Show version]'
+    '--no-preview[Disable preview window]'
+    '(-t --theme)'{-t,--theme}'[Select built-in theme]:theme:->theme_options'
+    '(--preview-themes[Interactively preview and select a built-in theme]'
+    '(-l --list-themes)'{-l,--list-themes}'[Show list of built-in themes]'
     '(-v --verbose)'{-v,--verbose}'[Show verbose output]'
+    '(-V --version)'{-V,--version}'[Show version]'
   )
 
-  # No positional arguments anymore → only options or nothing
   _arguments -C \
     "${opts[@]}" \
-    '*: :( )'   # explicitly say no more arguments after options
+    '*: :( )' && return 0
+
+  case "${state}" in
+    theme_options)
+      _values 'rclonefzf theme' "${theme_options[@]}" && ret=0
+      ;;
+  esac
+
+  return "${ret}"
 }
 
 _rclonefzf "${@}"
-
-#vim:filetype=zsh:shiftwidth=2:softtabstop=2:expandtab

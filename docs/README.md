@@ -46,6 +46,7 @@ It provides a fast, keyboard-driven interface to select configured rclone remote
     - [Git](#git)
   - [Usage](#usage)
     - [Command Line Options](#command-line-options)
+    - [Examples](#examples)
     - [Keybindings](#keybindings)
   - [Configuration](#configuration)
     - [Configuration Files](#configuration-files)
@@ -129,8 +130,12 @@ rclonefzf "query"
 ### Command Line Options
 
 | Option | Description |
-|--------|-------------|
+| ------ | ----------- |
+| `--no-preview` | Disable preview window |
 | `-k`, `--keybindings` | Show keybindings and exit |
+| `-t`, `--theme [theme]` | Set built-in theme |
+| `-l`, `--list-themes` | Show list of built-in themes |
+| `--preview-themes` | Interactively preview and select a built-in theme |
 | `-i`, `--init-config` | Install example configuration file |
 | `-s`, `--show-config` | Show example configuration file content |
 | `-v`, `--verbose` | Show verbose output |
@@ -138,6 +143,56 @@ rclonefzf "query"
 | `--help` | Show full help |
 | `--help-man` | Show manpage help |
 | `-V`, `--version` | Show version |
+
+### Examples
+
+Run `rclonefzf` with no search query:
+
+```bash
+rclonefzf
+```
+
+Search for `fzf`:
+
+```bash
+rclonefzf fzf
+```
+
+Start with the `dracula` theme:
+
+```bash
+rclonefzf --theme dracula
+```
+
+Show all built-in themes:
+
+```bash
+rclonefzf --list-themes
+```
+
+Open the interactive theme selector:
+
+```bash
+rclonefzf --preview-themes
+```
+
+Start with the package preview window disabled:
+
+```bash
+rclonefzf --no-preview
+```
+
+Install an example configuration file:
+
+```bash
+rclonefzf --init-config
+```
+
+Show the short help menu:
+
+```bash
+rclonefzf -h
+```
 
 ### Keybindings
 
@@ -191,7 +246,6 @@ rclonefzf looks for configuration files in this order (uses the first file found
 
 - [rclone][rclone-url]
 - [fzf][fzf-url]
-- [yayfzf][yayfzf-url]
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -270,7 +324,5 @@ git push origin AmazingNewFeature
 [wiki-screenshots-url]: https://github.com/ConnerWill/rclonefzf/wiki/Screenshots
 
 [fzf-url]: https://github.com/junegunn/fzf
-[yayfzf-url]: https://github.com/ConnerWill/yayfzf
-[rclonefzf-url]: https://github.com/ConnerWill/rclonefzf
 [rclone-url]: https://rclone.org
 [rclonefzf-source]: https://github.com/ConnerWill/rclonefzf/blob/main/bin/rclonefzf
