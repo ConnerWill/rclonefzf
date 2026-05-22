@@ -1113,11 +1113,6 @@ parse_args() {
         show_example_config
         exit 0
         ;;
-      --sort-by)
-        [[ -n "${2:-}" ]] || die "Missing value for ${1}"
-        SORT_BY="${2}"
-        shift 2
-        ;;
       --no-preview)
         ENABLE_PREVIEW=false
         shift
