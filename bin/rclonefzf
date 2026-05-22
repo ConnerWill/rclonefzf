@@ -8,7 +8,6 @@ IFS=$'\n\t'
 #######################################
 # TODO
 #######################################
-# TODO: When you uninstall a package and return back to yayfzf, the package still shows as installed. Need to refresh.
 
 #######################################
 # Script metadata
@@ -22,10 +21,10 @@ readonly VERSION="1.0.19"
 #######################################
 # Config locations (precedence order)
 #######################################
-readonly XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/rclonefzf"
+readonly XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}/${SCRIPT_NAME}"
 readonly CONFIG_PATHS=(
-  "${XDG_CONFIG_DIR}/rclonefzf.conf"
-  "${HOME}/.rclonefzf.conf"
+  "${XDG_CONFIG_DIR}/${SCRIPT_NAME}.conf"
+  "${HOME}/.${SCRIPT_NAME}.conf"
 )
 
 #######################################
@@ -735,29 +734,52 @@ ${C_BLUE}${C_BOLD}USAGE${C_RESET}
 
 ${C_BLUE}${C_BOLD}OPTIONS${C_RESET}
 
-  ${C_YELLOW}-k${C_RESET}, ${C_YELLOW}--keybindings${C_RESET}
-      ${C_WHITE}Show keybindings${C_RESET}
+  ${C_CYAN}SEARCH${C_RESET}
 
-  ${C_YELLOW}-i${C_RESET}, ${C_YELLOW}--init-config${C_RESET}
-      ${C_WHITE}Install example configuration file${C_RESET}
+    ${C_YELLOW}--no-preview${C_RESET}
+        ${C_WHITE}Disable package preview window${C_RESET}
 
-  ${C_YELLOW}-s${C_RESET}, ${C_YELLOW}--show-config${C_RESET}
-      ${C_WHITE}Show example configuration file content${C_RESET}
 
-  ${C_YELLOW}-v${C_RESET}, ${C_YELLOW}--verbose${C_RESET}
-      ${C_WHITE}Show verbose output${C_RESET}
+  ${C_CYAN}THEMES${C_RESET}
 
-  ${C_YELLOW}-h${C_RESET}
-      ${C_WHITE}Show help${C_RESET}
+    ${C_YELLOW}-t${C_RESET}, ${C_YELLOW}--theme${C_RESET} ${C_ITALIC}${C_PURPLE}[theme]${C_RESET}
+        ${C_WHITE}Set built-in theme${C_RESET}
 
-  ${C_YELLOW}--help${C_RESET}
-      ${C_WHITE}Show full help${C_RESET}
+    ${C_YELLOW}-l${C_RESET}, ${C_YELLOW}--list-themes${C_RESET}
+        ${C_WHITE}Show list of built-in themes${C_RESET}
 
-  ${C_YELLOW}--help-man${C_RESET}
-      ${C_WHITE}Show man page${C_RESET}
+    ${C_YELLOW}--preview-themes${C_RESET}
+        ${C_WHITE}Interactively preview and select a built-in theme${C_RESET}
 
-  ${C_YELLOW}-V${C_RESET}, ${C_YELLOW}--version${C_RESET}
-      ${C_WHITE}Show version${C_RESET}
+
+  ${C_CYAN}CONFIGURATION${C_RESET}
+
+    ${C_YELLOW}-i${C_RESET}, ${C_YELLOW}--init-config${C_RESET}
+        ${C_WHITE}Install example configuration file${C_RESET}
+
+    ${C_YELLOW}-s${C_RESET}, ${C_YELLOW}--show-config${C_RESET}
+        ${C_WHITE}Show example configuration file content${C_RESET}
+
+
+  ${C_CYAN}INFORMATION${C_RESET}
+
+    ${C_YELLOW}-k${C_RESET}, ${C_YELLOW}--keybindings${C_RESET}
+        ${C_WHITE}Show keybindings${C_RESET}
+
+    ${C_YELLOW}-v${C_RESET}, ${C_YELLOW}--verbose${C_RESET}
+        ${C_WHITE}Show verbose output${C_RESET}
+
+    ${C_YELLOW}-h${C_RESET}
+        ${C_WHITE}Show help${C_RESET}
+
+    ${C_YELLOW}--help${C_RESET}
+        ${C_WHITE}Show full help${C_RESET}
+
+    ${C_YELLOW}--help-man${C_RESET}
+        ${C_WHITE}Show man page${C_RESET}
+
+    ${C_YELLOW}-V${C_RESET}, ${C_YELLOW}--version${C_RESET}
+        ${C_WHITE}Show version${C_RESET}
 
 
 HELPMENU
@@ -862,6 +884,42 @@ show_author() {
   printf '%b%s%b %b%s%b\n' "${C_GREEN}" "${SCRIPT_AUTHOR}" "${C_RESET}" "${C_YELLOW}" "${SCRIPT_AUTHOR_URL}" "${C_RESET}"
 }
 
+show_themes() {
+    local theme_name
+
+    # Associative arrays do not preserve order, so sort the theme names.
+    while IFS= read -r theme_name; do
+        printf '%s\n' "${theme_name}"
+    done < <(printf '%s\n' "${!BUILTIN_THEMES[@]}" | sort)
+}
+
+preview_themes() {
+  local selected_theme
+
+  require_cmd fzf
+
+  selected_theme="$(
+    show_themes |
+      fzf \
+        --ansi \
+        --prompt='theme> ' \
+        --border="${BORDER}" \
+        --layout="${LAYOUT}" \
+        --cycle \
+        --style=full \
+        --preview-window='up:10%:wrap' \
+        --preview='
+          printf "Theme: %s\n\n" "{}"
+          printf "Press ENTER to launch rclonefzf with this theme.\n"
+          printf "Press ESC to cancel.\n"
+        '
+  )"
+
+  [[ -n "${selected_theme}" ]] || exit 0
+
+  exec "${0}" --theme "${selected_theme}"
+}
+
 show_help_man() {
   require_cmd man
   man "${SCRIPT_NAME}"
@@ -885,10 +943,15 @@ show_help_full() {
 example_config() {
 
   cat <<EOF
-# rclonefzf configuration file (example)
+# ${SCRIPT_NAME} configuration file (example)
 # Override defaults here
 
-# Theme: default, light, tokyo-night, neon
+# Theme
+# Show available themes:
+#   ${SCRIPT_NAME} --list-themes
+#
+# Interactively select a theme:
+#   ${SCRIPT_NAME} --preview-themes
 THEME="${THEME:-neon}"
 
 # Preview window options for fzf
@@ -909,14 +972,14 @@ VERBOSE=${VERBOSE:-false}
 # Pager (less, bat, etc.)
 RCLONEFZF_PAGER="${PAGER:-less}"
 
-# Close rclonefzf with 'ctrl-c' keypress
+# Close ${SCRIPT_NAME} with 'ctrl-c' keypress
 CTRL_C_CLOSE=${CTRL_C_CLOSE:-true}
 
 # rclone max depth, how deep to view down tree
 RCLONE_MAX_DEPTH=${RCLONE_MAX_DEPTH:-10}
 
 # Directory to save downloaded files to (uncomment or leave blank to use '\${PWD}')
-RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/rclonefzf}"
+RCLONEFZF_DOWNLOADS_DIR="${RCLONEFZF_DOWNLOADS_DIR:-${HOME}/Downloads/${SCRIPT_NAME}}"
 
 # Do not use color for output
 NO_COLOR=${NO_COLOR:-false}
@@ -927,7 +990,7 @@ EOF
 }
 
 install_example_config() {
-  local cfg_file="${XDG_CONFIG_DIR}/rclonefzf.conf"
+  local cfg_file="${XDG_CONFIG_DIR}/${SCRIPT_NAME}.conf"
 
   mkdir -p "$(dirname "${cfg_file}")"
   if [[ -f "${cfg_file}" ]]; then
@@ -939,10 +1002,10 @@ install_example_config() {
   success "Created configuration file: '${cfg_file}'"
 }
 
-show_config_file_contents() {
-  local cfg_file="${XDG_CONFIG_DIR}/rclonefzf.conf"
+show_example_config() {
+  local cfg_file="${XDG_CONFIG_DIR}/${SCRIPT_NAME}.conf"
   if [[ -f "${cfg_file}" ]]; then
-    "${RCLONEFZF_PAGER}" "${cfg_file}"
+    "${YAYFZF_PAGER}" "${cfg_file}"
   else
     example_config
   fi
@@ -1023,34 +1086,90 @@ export -f rclonefzf_copy_selected
 #######################################
 # Command line argument parsing
 #######################################
-SEARCH_QUERY=""
-CONFIG_INIT=false
-if [[ -n "${VERBOSE}" && "${VERBOSE}" != false ]]; then
-  export VERBOSE
-fi
+parse_args() {
+  SEARCH_QUERY=""
+  CONFIG_INIT=false
 
-while [[ $# -gt 0 ]]; do
-  case "${1}" in
-    -k|--key*)    show_keybindings;                           exit 0 ;;
-    -i|--init-c*) CONFIG_INIT=true;                           shift  ;;
-    -s|--show-c*) show_config_file_contents;                  exit 0 ;;
-    -v|--verb*)   export VERBOSE=true;                        shift  ;;
-    -h)           show_help;                                  exit 0 ;;
-    --help)       show_help_full;                             exit 0 ;;
-    --help-man)   show_help_man;                              exit 0 ;;
-    -V|--vers*)   show_version;                               exit 0 ;;
-    -*)           die "Unknown option: '${1}'. See help for options" ;;
-    *)            SEARCH_QUERY+="${SEARCH_QUERY:+ }${1}";     shift  ;;
-  esac
-done
+  while [[ $# -gt 0 ]]; do
+    case "${1}" in
+      -t|--theme)
+        [[ -n "${2:-}" ]] || die "Missing value for ${1}"
+        THEME="${2}"
+        shift 2
+        ;;
+      -l|--list-themes)
+        show_themes
+        exit 0
+        ;;
+      -k|--keybindings)
+        show_keybindings
+        exit 0
+        ;;
+      -i|--init-config)
+        CONFIG_INIT=true
+        shift
+        ;;
+      -s|--show-config)
+        show_example_config
+        exit 0
+        ;;
+      --sort-by)
+        [[ -n "${2:-}" ]] || die "Missing value for ${1}"
+        SORT_BY="${2}"
+        shift 2
+        ;;
+      --no-preview)
+        ENABLE_PREVIEW=false
+        shift
+        ;;
+      --preview-themes)
+        preview_themes
+        exit 0
+        ;;
+      -v|--verbose)
+        export VERBOSE=true
+        shift
+        ;;
+      -h)
+        show_help
+        exit 0
+        ;;
+      --help)
+        show_help_full
+        exit 0
+        ;;
+      --help-man)
+        show_help_man
+        exit 0
+        ;;
+      -V|--version)
+        show_version
+        exit 0
+        ;;
+      --)
+        shift
+        SEARCH_QUERY+="${SEARCH_QUERY:+ }${*}"
+        break
+        ;;
+      -*)
+        die "Unknown option: '${1}'. See help for options"
+        ;;
+      *)
+        SEARCH_QUERY+="${SEARCH_QUERY:+ }${1}"
+        shift
+        ;;
+    esac
+  done
+}
 
 #######################################
 # Init
 #######################################
 declare -a RCLONE_REMOTES=()
 load_config
+parse_args "${@}"
 resolve_theme
-require_cmd rclone fzf
+require_cmd rclone fzf sed tr tput
 ensure_download_dir
 
 if [[ "${CONFIG_INIT}" == true ]]; then
@@ -1160,6 +1279,8 @@ list_remotes() {
     "${remotes[@]}"
     "Install config"
     "Show config"
+    "List themes"
+    "Select theme"
     "Keybindings"
     "Help"
     "Exit"
@@ -1220,7 +1341,15 @@ main() {
         exit 0
         ;;
       "Show config")
-        show_config_file_contents
+        show_example_config
+        exit 0
+        ;;
+      "List themes")
+        show_themes
+        exit 0
+        ;;
+      "Select theme")
+        preview_themes
         exit 0
         ;;
       "Keybindings")
