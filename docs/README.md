@@ -176,7 +176,7 @@ Open the interactive theme selector:
 rclonefzf --preview-themes
 ```
 
-Start with the package preview window disabled:
+Start with the preview window disabled:
 
 ```bash
 rclonefzf --no-preview
