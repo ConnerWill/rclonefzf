@@ -6,6 +6,11 @@ set -Eeo pipefail
 IFS=$'\n\t'
 
 #######################################
+# TODO
+#######################################
+# TODO: When you uninstall a package and return back to yayfzf, the package still shows as installed. Need to refresh.
+
+#######################################
 # Script metadata
 #######################################
 readonly SCRIPT_NAME="${0##*/}"
