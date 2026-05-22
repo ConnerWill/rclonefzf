@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #vim:filetype=sh:shiftwidth=2:softtabstop=2:expandtab:foldmethod=marker:foldmarker=###{{{,###}}}
-#shellcheck disable=2016,2034,2059,21.0.2254,2249,2310,2312
+#shellcheck disable=2016,2034,2059,2120,2254,2249,2310,2312
 
 set -Eeo pipefail
 IFS=$'\n\t'
@@ -1005,7 +1005,7 @@ install_example_config() {
 show_example_config() {
   local cfg_file="${XDG_CONFIG_DIR}/${SCRIPT_NAME}.conf"
   if [[ -f "${cfg_file}" ]]; then
-    "${YAYFZF_PAGER}" "${cfg_file}"
+    "${RCLONEFZF_PAGER}" "${cfg_file}"
   else
     example_config
   fi
