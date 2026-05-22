@@ -49,8 +49,8 @@ _rclonefzf() {
     '(-s --show-config)'{-s,--show-config}'[Show example configuration file content]'
     '--no-preview[Disable preview window]'
     '(-t --theme)'{-t,--theme}'[Select built-in theme]:theme:->theme_options'
-    '(--preview-themes[Interactively preview and select a built-in theme]'
-    '(-l --list-themes)'{-l,--list-themes}'[Show list of built-in themes]'
+    '(-l --list-themes)--preview-themes[Interactively preview and select a built-in theme]'
+    '(--preview-themes -l --list-themes)'{-l,--list-themes}'[Show list of built-in themes]'
     '(-v --verbose)'{-v,--verbose}'[Show verbose output]'
     '(-V --version)'{-V,--version}'[Show version]'
   )
