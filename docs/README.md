@@ -158,12 +158,6 @@ Search for `fzf`:
 rclonefzf fzf
 ```
 
-Search packages sorted by votes:
-
-```bash
-rclonefzf --sort-by votes
-```
-
 Start with the `dracula` theme:
 
 ```bash
